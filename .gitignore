@@ -1,0 +1,21 @@
+# CMake crap
+bin/
+/build/
+
+# IDE crap
+cmake-build-debug
+cmake-build-release
+cmake-build-debug-coverage
+.cache/
+
+# Our crap
+generated
+ostis-web-platform/
+
+# Apple crap
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+# Thumbnails
+._*
