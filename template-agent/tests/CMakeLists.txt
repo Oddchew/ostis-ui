@@ -8,4 +8,4 @@ target_include_directories(
 
 target_link_libraries(template_agent-test gtest_main ostis-specified-template-agent)
 
-add_test(NAME specified-string-template-agent-test COMMAND template-agent-test)
+add_test(NAME template-agent-test COMMAND template_agent-test)
