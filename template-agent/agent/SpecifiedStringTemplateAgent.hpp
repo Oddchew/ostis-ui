@@ -3,17 +3,18 @@
 #include <map>
 
 #include "sc-memory/kpm/sc_agent.hpp"
+/*
+ * This source file is part of an OSTIS project. For the latest info, see http://ostis.net
+ * Distributed under the MIT License
+ * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
+ */
+
 #include "sc-agents-common/keynodes/coreKeynodes.hpp"
 #include "generated/SpecifiedStringTemplateAgent.generated.hpp"
 #include "sc-memory/sc_memory.hpp"
 
-namespace HTMLTranslatorModule
+namespace specifiedStringTemplateModule
 {
-enum VariableType
-{
-  LINK = 1,
-  SET_ELEMENTS = 2
-};
 
 class SpecifiedStringTemplateAgent : public ScAgent
 {
@@ -21,13 +22,7 @@ class SpecifiedStringTemplateAgent : public ScAgent
   SC_GENERATED_BODY()
 
 private:
-
-  bool checkActionClass(const ScAddr & actionNode);
-
-  std::string evaluateTemplate(
-      const ScMemoryContext & m_memoryCtx,
-      const std::string & templateString,
-      const ScAddr & variablesNode);
+  static bool CheckActionClass(ScMemoryContext & context, ScAddr const & actionNode);
 
 //   std::map<VariableType, std::vector<std::string>> getTemplateVariables(std::string const & text);
 
@@ -69,4 +64,4 @@ private:
 
 //   ScAddrVector getIncidentElements(const ScAddr & node, const ScAddr & structNode);
 };
-}  // namespace HTMLTranslatorModule
+}  // namespace specifiedStringTemplateModule
