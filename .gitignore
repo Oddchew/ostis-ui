@@ -7,10 +7,12 @@ cmake-build-debug
 cmake-build-release
 cmake-build-debug-coverage
 .cache/
+.idea
 
 # Our crap
 generated
 ostis-web-platform/
+sc-machine/
 
 # Apple crap
 # General

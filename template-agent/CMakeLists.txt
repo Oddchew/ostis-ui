@@ -9,13 +9,18 @@ FetchContent_MakeAvailable(inja)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
 set(SPECIFIED_TEMPLATE_AGENT_SOURCES
-"SpecifiedStringTemplateAgent.cpp"
-"SpecifiedStringTemplateKeynodes.cpp"
+"agent/SpecifiedStringTemplateAgent.cpp"
+"keynodes/SpecifiedStringTemplateKeynodes.cpp"
+"renderer/StringTemplateRenderer.cpp"
+"SpecifiedStringTemplateModule.cpp"
 )
 
 set(SPECIFIED_TEMPLATE_AGENT_HEADERS
-"SpecifiedStringTemplateAgent.hpp"
-"SpecifiedStringTemplateKeynodes.hpp")
+"agent/SpecifiedStringTemplateAgent.hpp"
+"keynodes/SpecifiedStringTemplateKeynodes.hpp"
+"renderer/StringTemplateRenderer.hpp"
+"SpecifiedStringTemplateModule.hpp"
+)
 
 add_library(
     ostis-specified-template-agent 
