@@ -15,19 +15,18 @@
 
 using namespace specifiedStringTemplateModule;
 
-namespace RendererTest
+namespace rendererTest
 {
 std::string const TEST_FILES_DIR_PATH = TEMPLATE_AGENT_TEST_SRC_PATH "/test-structures/";
 
 using RendererTest = ScMemoryTest;
 
-TEST_F(RendererTest, ZeroVariavlesStringTemplate)
+void TestRenderer(ScMemoryContext & context, std::string const & scsTestFile)
 {
-  ScMemoryContext & context = *m_ctx;
   scAgentsCommon::CoreKeynodes::InitGlobal();
   SpecifiedStringTemplateKeynodes::InitGlobal();
   ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "zero_variables_string_template.scs");
+  loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFile);
 
   ScAddr string_template = context.HelperFindBySystemIdtf("string_template");
   ScAddr replacement_values = context.HelperFindBySystemIdtf("replacement_values");
@@ -40,61 +39,34 @@ TEST_F(RendererTest, ZeroVariavlesStringTemplate)
   EXPECT_EQ(result, expectedResult);
 }
 
-TEST_F(RendererTest, OneVariavleStringTemplate)
+TEST_F(RendererTest, ZeroVariablesStringTemplate)
 {
-  ScMemoryContext & context = *m_ctx;
-  scAgentsCommon::CoreKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
-  ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "one_variable_string_template.scs");
-
-  ScAddr string_template = context.HelperFindBySystemIdtf("string_template");
-  ScAddr replacement_values = context.HelperFindBySystemIdtf("replacement_values");
-  std::string result = specifiedStringTemplateModule::StringTemplateRenderer::RenderStringTemplate(context, string_template, replacement_values);
-
-  std::string expectedResult;
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
-  context.GetLinkContent(string_template_expected_result, expectedResult);
-
-  EXPECT_EQ(result, expectedResult);
+  TestRenderer(*m_ctx, "zero_variables_string_template.scs");
 }
 
-TEST_F(RendererTest, TwoVariavlesStringTemplate)
+TEST_F(RendererTest, OneVariableStringTemplate)
 {
-  ScMemoryContext & context = *m_ctx;
-  scAgentsCommon::CoreKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
-  ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "two_variables_string_template.scs");
-
-  ScAddr string_template = context.HelperFindBySystemIdtf("string_template");
-  ScAddr replacement_values = context.HelperFindBySystemIdtf("replacement_values");
-  std::string result = specifiedStringTemplateModule::StringTemplateRenderer::RenderStringTemplate(context, string_template, replacement_values);
-
-  std::string expectedResult;
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
-  context.GetLinkContent(string_template_expected_result, expectedResult);
-
-  EXPECT_EQ(result, expectedResult);
+  TestRenderer(*m_ctx, "one_variable_string_template.scs");
 }
 
-TEST_F(RendererTest, ThreeVariavlesStringTemplate)
+TEST_F(RendererTest, TwoVariablesStringTemplate)
 {
-  ScMemoryContext & context = *m_ctx;
-  scAgentsCommon::CoreKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
-  ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "three_variables_string_template.scs");
-
-  ScAddr string_template = context.HelperFindBySystemIdtf("string_template");
-  ScAddr replacement_values = context.HelperFindBySystemIdtf("replacement_values");
-  std::string result = specifiedStringTemplateModule::StringTemplateRenderer::RenderStringTemplate(context, string_template, replacement_values);
-
-  std::string expectedResult;
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
-  context.GetLinkContent(string_template_expected_result, expectedResult);
-
-  EXPECT_EQ(result, expectedResult);
+  TestRenderer(*m_ctx, "two_variables_string_template.scs");
 }
 
-} // namespace RendererTest
+TEST_F(RendererTest, ThreeVariablesStringTemplate)
+{
+  TestRenderer(*m_ctx, "three_variables_string_template.scs");
+}
+
+TEST_F(RendererTest, NoVariablesStringTemplate)
+{
+  EXPECT_ANY_THROW(TestRenderer(*m_ctx, "no_variables_string_template.scs"));
+}
+
+TEST_F(RendererTest, NotAllVariablesStringTemplate)
+{
+  EXPECT_ANY_THROW(TestRenderer(*m_ctx, "not_all_variables_string_template.scs"));
+}
+
+} // namespace rendererTest

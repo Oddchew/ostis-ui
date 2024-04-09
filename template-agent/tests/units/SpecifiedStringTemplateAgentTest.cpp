@@ -38,13 +38,12 @@ void ShutdownTest()
   SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
 }
 
-TEST_F(TemplateAgentTest, ZeroVariavlesStringTemplate)
+void TestTemplateAgent(ScMemoryContext & context, std::string const & scsTestFile)
 {
   InitializeTest();
 
-  ScMemoryContext & context = *m_ctx;
   ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "zero_variables_string_template.scs");
+  loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFile);
 
   // Call the agent, get and validate result
   ScAddr test_action_node = context.HelperFindBySystemIdtf("test_action_node");
@@ -76,44 +75,14 @@ TEST_F(TemplateAgentTest, ZeroVariavlesStringTemplate)
   ShutdownTest();
 }
 
-
-TEST_F(TemplateAgentTest, OneVariavleStringTemplate)
+TEST_F(TemplateAgentTest, ZeroVariablesStringTemplate)
 {
-  InitializeTest();
-
-  ScMemoryContext & context = *m_ctx;
-  ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "one_variable_string_template.scs");
-
-  // Call the agent, get and validate result
-  ScAddr test_action_node = context.HelperFindBySystemIdtf("test_action_node");
-  EXPECT_TRUE(context.IsElement(test_action_node));
-  ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, test_action_node, WAIT_TIME);
-  EXPECT_TRUE(context.IsElement(result));
-  ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
-  EXPECT_TRUE(context.IsElement(resultLink));
-
-  // Check if the result is correct
-  std::string resultLinkContent;
-  context.GetLinkContent(resultLink, resultLinkContent);
-  EXPECT_NE(resultLinkContent, "");
-
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
-  std::string string_template_expected_result_content;
-  context.GetLinkContent(string_template_expected_result, string_template_expected_result_content);
-
-  // Check if nrel_format is generated for the result sc-link
-  EXPECT_EQ(string_template_expected_result_content, resultLinkContent);
-  ScIterator5Ptr formatIterator = context.Iterator5(
-        resultLink,
-        ScType::EdgeDCommonConst,
-        context.HelperFindBySystemIdtf("format_html"),
-        ScType::EdgeAccessConstPosPerm,
-        SpecifiedStringTemplateKeynodes::nrel_format);
-  EXPECT_TRUE(formatIterator->Next());
-
-  ShutdownTest();
+  TestTemplateAgent(*m_ctx, "zero_variables_string_template.scs");
 }
 
+TEST_F(TemplateAgentTest, OneVariableStringTemplate)
+{
+  TestTemplateAgent(*m_ctx, "one_variable_string_template.scs");
+}
 
 } // namespace templateAgentTest
