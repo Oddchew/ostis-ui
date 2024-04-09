@@ -5,7 +5,7 @@
  */
 
 #include "agents/HTMLTranslatorAgent.hpp"
-#include "keynodes/HTMLTranslatorKeynodes.cpp"
+#include "keynodes/HTMLTranslatorKeynodes.hpp"
 
 #include "HTMLTranslatorModule.hpp"
 
