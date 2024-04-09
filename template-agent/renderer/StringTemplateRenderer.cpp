@@ -35,8 +35,9 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
   // If link has no variables, return it. Nothing to render
   if (!context.IsElement(variablesSetAddr))
   {
-    SC_LOG_WARNING("StringTemplateRenderer: string template link has no variables, return the input: " << templateString);
-    return templateString;
+    std::string result = inja::render(templateString, nlohmann::json());
+    SC_LOG_INFO("StringTemplateRenderer: there is no variables. Rendered string is " << result);
+    return result;
   }
 
   nlohmann::json variableTemplateValues;
