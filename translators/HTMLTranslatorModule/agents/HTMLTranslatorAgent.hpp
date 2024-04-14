@@ -22,7 +22,7 @@ class HTMLTranslatorAgent : public ScAgent
   SC_GENERATED_BODY()
 
 private:
-  static bool CheckActionClass(ScMemoryContext & context, ScAddr const & actionNode);
+  bool CheckActionClass(ScAddr const & actionNode);
 
 };
 }  // namespace htmlTranslationModule
