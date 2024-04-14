@@ -1,14 +1,14 @@
 set(HTML_TRANSLATOR_SOURCES
 	"HTMLTranslatorModule.cpp"
-	"agents/HTMLTranslatorAgent.cpp"
 	"keynodes/HTMLTranslatorKeynodes.cpp"
+	"agents/HTMLTranslatorAgent.cpp"
     "html-translator/HTMLTranslator.cpp"
 )
 
 set(HTML_TRANSLATOR_HEADERS
     "HTMLTranslatorModule.hpp"
-    "agents/HTMLTranslatorAgent.hpp"
     "keynodes/HTMLTranslatorKeynodes.hpp"
+    "agents/HTMLTranslatorAgent.hpp"
     "html-translator/HTMLTranslator.hpp"
 )
 

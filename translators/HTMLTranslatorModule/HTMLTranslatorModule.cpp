@@ -4,8 +4,8 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
-#include "agents/HTMLTranslatorAgent.hpp"
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
+#include "agents/HTMLTranslatorAgent.hpp"
 
 #include "HTMLTranslatorModule.hpp"
 
