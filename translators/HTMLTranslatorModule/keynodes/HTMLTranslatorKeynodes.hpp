@@ -22,16 +22,16 @@ public:
   SC_PROPERTY(Keynode("action_translate_ui_model_to_html"), ForceCreate)
   static ScAddr action_translate_ui_model_to_html;
 
-  SC_PROPERTY(Keynode("nrel_decomposition"), ForceCreate(ScType::NodeNoRole))
+  SC_PROPERTY(Keynode("nrel_decomposition"), ForceCreate(ScType::NodeConstNoRole))
   static ScAddr nrel_decomposition;
 
   SC_PROPERTY(Keynode("concept_user_interface_component"), ForceCreate(ScType::NodeConstClass))
   static ScAddr concept_user_interface_component;
 
-  SC_PROPERTY(Keynode("nrel_html_template"), ForceCreate(ScType::NodeNoRole))
+  SC_PROPERTY(Keynode("nrel_html_template"), ForceCreate(ScType::NodeConstNoRole))
   static ScAddr nrel_html_template;
 
-  SC_PROPERTY(Keynode("nrel_html_representation"), ForceCreate(ScType::NodeNoRole))
+  SC_PROPERTY(Keynode("nrel_html_representation"), ForceCreate(ScType::NodeConstNoRole))
   static ScAddr nrel_html_representation;
 
   SC_PROPERTY(Keynode("action_evaluate_specified_string_template"), ForceCreate)

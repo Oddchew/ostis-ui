@@ -43,8 +43,8 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const
     return answerHTMLLink;
   }
 
-//  // Get root element decomposition and iterate over all the child elements
-//  ScAddrVector uiElementDecomposition = IteratorUtils::getAllByOutRelation(&m_memoryCtx, rootUIElement, HTMLTranslatorKeynodes::nrel_decomposition);
+  // Get root element decomposition and iterate over all the child elements
+//  ScAddrVector uiElementDecomposition = IteratorUtils::getAllByOutRelation(&context, rootUiElement, HTMLTranslatorKeynodes::nrel_decomposition);
 //  for (ScAddr const & childUIElement : uiElementDecomposition)
 //  {
 //

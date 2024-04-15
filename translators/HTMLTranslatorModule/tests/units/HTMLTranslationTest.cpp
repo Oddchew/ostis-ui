@@ -55,6 +55,8 @@ void TestHTMLTranslator(ScMemoryContext & context, std::string const & scsTestFi
   EXPECT_TRUE(context.IsElement(rootUiElement));
 
   ScAddr resultLink = HTMLTranslator::TranslateScToHTML(context, rootUiElement);
+  EXPECT_TRUE(context.IsElement(resultLink));
+
   std::string resultLinkContent;
   context.GetLinkContent(resultLink, resultLinkContent);
   EXPECT_NE(resultLinkContent, "");
@@ -70,14 +72,7 @@ void TestHTMLTranslator(ScMemoryContext & context, std::string const & scsTestFi
 
 TEST_F(HTMLTranslatorTest, TranslateButton)
 {
-  try
-  {
-    TestHTMLTranslator(*m_ctx, "test_translate_button.scs");
-  }
-  catch (utils::ScException & exception)
-  {
-    SC_LOG_ERROR(exception.Description());
-  }
+  TestHTMLTranslator(*m_ctx, "test_translate_button.scs");
 }
 
 } // namespace htmlTranslatorTest
