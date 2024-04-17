@@ -93,6 +93,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     }
     if (!context.IsElement(keyScElementValue))
     {
+      SC_LOG_ERROR("StringTemplateRenderer: can't find value for variable " << variableContent);
       throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: template is not found.", ""));
     }
     ScType keyScElementValueType = context.GetElementType(keyScElementValue);

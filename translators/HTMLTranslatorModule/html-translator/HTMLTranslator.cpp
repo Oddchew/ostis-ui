@@ -11,6 +11,8 @@
 #include "sc-agents-common/utils/GenerationUtils.hpp"
 
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
+#include "sc-memory/sc_debug.hpp"
+#include "sc-memory/utils/sc_log.hpp"
 
 using namespace utils;
 
@@ -21,7 +23,7 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const
   if (!context.IsElement(rootUiElement))
   {
     SC_LOG_ERROR("HTMLTranslator: ui element is invalid.");
-    return {};
+    throw utils::ScException(utils::ExceptionInvalidParams("HTMLTranslator: ui element is invalid.", ""));
   }
 
   // Check if the element is translated or have hardcoded html representation
@@ -35,13 +37,13 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const
   if (!context.IsElement(uiHTMLTemplateLink))
   {
     SC_LOG_ERROR("HTMLTranslator: nrel_html_template not found.");
-    return answerHTMLLink;
+    throw utils::ScException(utils::ExceptionItemNotFound("HTMLTranslator: nrel_html_template of the component class not found.", ""));
   }
 
   answerHTMLLink = GetTemplateAgentAnswerLink(context, rootUiElement, uiHTMLTemplateLink);
   if (!context.IsElement(answerHTMLLink))
   {
-    return answerHTMLLink;
+    throw utils::ScException(utils::ExceptionInvalidState("HTMLTranslator: SpecifiedStringTemplateAgent answer is invalid.", ""));
   }
 
   // Get root element decomposition and iterate over all the child elements
