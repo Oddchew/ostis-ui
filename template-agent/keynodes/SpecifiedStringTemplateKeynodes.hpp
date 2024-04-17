@@ -39,6 +39,9 @@ public:
 
   SC_PROPERTY(Keynode("nrel_replacements_variables"), ForceCreate(ScType::NodeConstNoRole))
   static ScAddr nrel_replacements_variables;
+
+  SC_PROPERTY(Keynode("nrel_translation_action"), ForceCreate(ScType::NodeConstNoRole))
+  static ScAddr nrel_translation_action;
 };
 
 }  // namespace specifiedStringTemplateModule

@@ -93,6 +93,6 @@ templateReplacementsSet3
 -> rrel_1: _ui_element;;
 
 test_action_node
-<- action_translate_ui_model_to_html;
+<- action_tranlate_sc_node_to_html;
 <- question;
 -> rrel_1: button;;

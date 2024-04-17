@@ -30,7 +30,8 @@ void TestRenderer(ScMemoryContext & context, std::string const & scsTestFile)
 
   ScAddr string_template = context.HelperFindBySystemIdtf("string_template");
   ScAddr replacement_values = context.HelperFindBySystemIdtf("replacement_values");
-  std::string result = specifiedStringTemplateModule::StringTemplateRenderer::RenderStringTemplate(context, string_template, replacement_values);
+  ScAddr formatHTML = context.HelperFindBySystemIdtf("format_html");
+  std::string result = specifiedStringTemplateModule::StringTemplateRenderer::RenderStringTemplate(context, string_template, replacement_values, formatHTML);
 
   std::string expectedResult;
   ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");

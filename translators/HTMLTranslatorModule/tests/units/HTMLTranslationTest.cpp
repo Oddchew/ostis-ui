@@ -75,4 +75,8 @@ TEST_F(HTMLTranslatorTest, TranslateButton)
   TestHTMLTranslator(*m_ctx, "test_translate_button.scs");
 }
 
+TEST_F(HTMLTranslatorTest, TranslateDecompositionButton)
+{
+  TestHTMLTranslator(*m_ctx, "test_translate_button_decomposition.scs");
+}
 } // namespace htmlTranslatorTest

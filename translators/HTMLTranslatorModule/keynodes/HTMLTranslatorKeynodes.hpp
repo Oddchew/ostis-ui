@@ -19,8 +19,8 @@ class HTMLTranslatorKeynodes : public ScObject
   SC_GENERATED_BODY()
 
 public:
-  SC_PROPERTY(Keynode("action_translate_ui_model_to_html"), ForceCreate)
-  static ScAddr action_translate_ui_model_to_html;
+  SC_PROPERTY(Keynode("action_tranlate_sc_node_to_html"), ForceCreate)
+  static ScAddr action_tranlate_sc_node_to_html;
 
   SC_PROPERTY(Keynode("nrel_decomposition"), ForceCreate(ScType::NodeConstNoRole))
   static ScAddr nrel_decomposition;

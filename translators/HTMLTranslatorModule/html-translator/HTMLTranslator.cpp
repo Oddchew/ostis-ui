@@ -60,16 +60,19 @@ ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScMemoryContext & context, ScA
   std::string const HTMLTemplateLinkAlias = "_html_template_link";
 
   ScTemplate HTMLTemplateTemplate;
+  // component class
   HTMLTemplateTemplate.Triple(
         ScType::NodeVarClass >> UIComponentClassAlias,
         ScType::EdgeAccessVarPosPerm,
         uiComponent);
+  // chceck that a component class is a UI component class
   HTMLTemplateTemplate.Quintuple(
         HTMLTranslatorKeynodes::concept_user_interface_component,
         ScType::EdgeDCommonVar,
         UIComponentClassAlias,
         ScType::EdgeAccessVarPosPerm,
         scAgentsCommon::CoreKeynodes::nrel_inclusion);
+  // search for an HTML template in this component class
   HTMLTemplateTemplate.Quintuple(
         UIComponentClassAlias,
         ScType::EdgeDCommonVar,

@@ -31,7 +31,7 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   ScAddr const stringTemplateLink = IteratorUtils::getAnyByOutRelation(
       &m_memoryCtx, actionNode, scAgentsCommon::CoreKeynodes::rrel_1);
 
-  if (!stringTemplateLink.IsValid())
+  if (!m_memoryCtx.IsElement(stringTemplateLink))
   {
     SC_LOG_ERROR("Action doesn't have a string template link.");
     SC_LOG_DEBUG("SpecifiedStringTemplateAgent finished");
@@ -46,11 +46,18 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   // Get output sc-link format
   ScAddr const generatedLinkFormatClass = IteratorUtils::getAnyByOutRelation(
       &m_memoryCtx, actionNode, scAgentsCommon::CoreKeynodes::rrel_3);
+  if (!m_memoryCtx.IsElement(generatedLinkFormatClass))
+  {
+    SC_LOG_ERROR("Action doesn't have a format.");
+    SC_LOG_DEBUG("SpecifiedStringTemplateAgent finished");
+    AgentUtils::finishAgentWork(&m_memoryCtx, actionNode, false);
+    return SC_RESULT_ERROR_INVALID_PARAMS;
+  }
 
   std::string result;
   try
   {
-    result = StringTemplateRenderer::RenderStringTemplate(m_memoryCtx, stringTemplateLink, stringTemplateLinkReplacements);
+    result = StringTemplateRenderer::RenderStringTemplate(m_memoryCtx, stringTemplateLink, stringTemplateLinkReplacements, generatedLinkFormatClass);
   }
   catch (ScException const & exception)
   {

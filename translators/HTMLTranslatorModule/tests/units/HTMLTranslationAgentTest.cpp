@@ -55,9 +55,9 @@ void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsT
   // Call the agent, get and validate result
   ScAddr test_action_node = context.HelperFindBySystemIdtf("test_action_node");
   EXPECT_TRUE(context.IsElement(test_action_node));
-  ScAddr action_translate_ui_model_to_html = context.HelperFindBySystemIdtf("action_translate_ui_model_to_html");
-  EXPECT_TRUE(context.IsElement(action_translate_ui_model_to_html));
-  context.CreateEdge(ScType::EdgeAccessConstPosPerm, action_translate_ui_model_to_html, test_action_node);
+  ScAddr action_tranlate_sc_node_to_html = context.HelperFindBySystemIdtf("action_tranlate_sc_node_to_html");
+  EXPECT_TRUE(context.IsElement(action_tranlate_sc_node_to_html));
+  context.CreateEdge(ScType::EdgeAccessConstPosPerm, action_tranlate_sc_node_to_html, test_action_node);
   ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, test_action_node, WAIT_TIME);
   EXPECT_TRUE(context.IsElement(result));
   ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
@@ -89,9 +89,9 @@ TEST_F(HTMLTranslatorAgentTest, TranslateButton)
   // Call the agent, get and validate result
   ScAddr test_action_node = context.HelperFindBySystemIdtf("test_action_node");
   EXPECT_TRUE(context.IsElement(test_action_node));
-  ScAddr action_translate_ui_model_to_html = context.HelperFindBySystemIdtf("action_translate_ui_model_to_html");
-  EXPECT_TRUE(context.IsElement(action_translate_ui_model_to_html));
-  context.CreateEdge(ScType::EdgeAccessConstPosPerm, action_translate_ui_model_to_html, test_action_node);
+  ScAddr action_tranlate_sc_node_to_html = context.HelperFindBySystemIdtf("action_tranlate_sc_node_to_html");
+  EXPECT_TRUE(context.IsElement(action_tranlate_sc_node_to_html));
+  context.CreateEdge(ScType::EdgeAccessConstPosPerm, action_tranlate_sc_node_to_html, test_action_node);
   ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, test_action_node, WAIT_TIME);
   EXPECT_TRUE(context.IsElement(result));
   ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);

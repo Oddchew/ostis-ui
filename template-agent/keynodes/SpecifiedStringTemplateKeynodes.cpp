@@ -17,5 +17,7 @@ ScAddr SpecifiedStringTemplateKeynodes::rrel_variable;
 ScAddr SpecifiedStringTemplateKeynodes::rrel_value;
 ScAddr SpecifiedStringTemplateKeynodes::rrel_template;
 ScAddr SpecifiedStringTemplateKeynodes::nrel_replacements_variables;
+ScAddr SpecifiedStringTemplateKeynodes::nrel_translation_action;
+
 
 }  // namespace specifiedStringTemplateModule

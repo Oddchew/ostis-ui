@@ -16,3 +16,6 @@ test_action_node
 -> rrel_1: @string_template;
 -> rrel_2: replacement_values;
 -> rrel_3: format_html;;
+
+sc_node_class
+-> format_html;;

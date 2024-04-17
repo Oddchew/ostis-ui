@@ -16,7 +16,7 @@ namespace specifiedStringTemplateModule
 class StringTemplateRenderer
 {
 public:
-  static std::string RenderStringTemplate(ScMemoryContext & context, ScAddr const & stringTemplateLink, ScAddr const & stringTemplateLinkReplacements);
+  static std::string RenderStringTemplate(ScMemoryContext & context, ScAddr const & stringTemplateLink, ScAddr const & stringTemplateLinkReplacements, ScAddr const & stringFormatAddr);
   static ScTemplateParams GetScTemplateParamsFromTemplateReplacements(ScMemoryContext & context, ScAddr const & templateAddr, ScAddr const & stringTemplateLinkReplacements);
 };
 

@@ -68,7 +68,7 @@ SC_AGENT_IMPLEMENTATION(HTMLTranslatorAgent)
 
 bool HTMLTranslatorAgent::CheckActionClass(ScAddr const & actionNode)
 {
-  return m_memoryCtx.HelperCheckEdge(HTMLTranslatorKeynodes::action_translate_ui_model_to_html, actionNode, ScType::EdgeAccessConstPosPerm);
+  return m_memoryCtx.HelperCheckEdge(HTMLTranslatorKeynodes::action_tranlate_sc_node_to_html, actionNode, ScType::EdgeAccessConstPosPerm);
 }
 
 } // namespace htmlTranslationModule
