@@ -106,12 +106,12 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     variableTemplateValues[variableContent] = keyScElementValueContent;
     SC_LOG_DEBUG("StringTemplateRenderer: add mapping " << variableContent << ": " << keyScElementValueContent);
     }
-    else if (keyScElementValueType == ScType::NodeConst) 
+    else if (keyScElementValueType.IsNode())
     {
     ScAddr translateActionClass = IteratorUtils::getAnyByOutRelation(&context, stringFormatAddr, SpecifiedStringTemplateKeynodes::nrel_translation_action);
-    if (context.IsElement(translateActionClass)) 
+    if (!context.IsElement(translateActionClass))
     {
-      utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: can't translate a node to the specified format: action not found.", ""));
+      throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: can't translate a node to the specified format: action not found.", ""));
     }
     SC_LOG_DEBUG("StringTemplateRenderer: found action class for translation to a format: " << context.HelperGetSystemIdtf(translateActionClass));
     std::stringstream dependentComponentsTranslation;
@@ -131,6 +131,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
               ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
               context.GetLinkContent(answerLink, currentComponentTranslation);
               dependentComponentsTranslation << currentComponentTranslation;
+            currentElement = IteratorUtils::getNextFromSet(&context, keyScElementValue, currentElement);
           }
         }
         else

@@ -46,7 +46,7 @@ SC_AGENT_IMPLEMENTATION(HTMLTranslatorAgent)
   {
     return SC_RESULT_OK;
   }
-  SC_LOG_WARNING("HTMLTranslatorAgent started");
+  SC_LOG_DEBUG("HTMLTranslatorAgent started");
 
   // Get root user interface element from sc-model
   ScAddr const rootUiElement = IteratorUtils::getAnyByOutRelation(&m_memoryCtx, actionNode, scAgentsCommon::CoreKeynodes::rrel_1);
@@ -68,7 +68,7 @@ SC_AGENT_IMPLEMENTATION(HTMLTranslatorAgent)
 
 bool HTMLTranslatorAgent::CheckActionClass(ScAddr const & actionNode)
 {
-  return m_memoryCtx.HelperCheckEdge(HTMLTranslatorKeynodes::action_tranlate_sc_node_to_html, actionNode, ScType::EdgeAccessConstPosPerm);
+  return m_memoryCtx.HelperCheckEdge(HTMLTranslatorKeynodes::action_translate_sc_node_to_html, actionNode, ScType::EdgeAccessConstPosPerm);
 }
 
 } // namespace htmlTranslationModule
