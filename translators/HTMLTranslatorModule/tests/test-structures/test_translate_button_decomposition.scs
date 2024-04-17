@@ -1,87 +1,39 @@
-@string_template = [<button id="icon-button">{{ content }}</button>];;
-@string_template => nrel_system_identifier: [string_template];;
+..label
+	<- ostis_ui_kit_text_output;
+	<- ostis_ui_kit_text_size_large;
+	<- ui_component_text_output_weight_500;
+	=> nrel_content: [CLICK ME] (* <- format_plaintext;; *);;
 
-@string_template_expected_result = [<button id="icon-button"><img src="/path/star.png"><img src="/path/hearth.png"><img src="/path/bigup.png"><p>shiiiet</p></button>];;
-@string_template_expected_result => nrel_system_identifier: [string_template_expected_result];;
+..description
+	<- ostis_ui_kit_text_output;
+	<- ostis_ui_kit_text_size_small;
+	<- ui_component_text_output_weight_500;
+	=> nrel_content: [some description] (* <- format_plaintext;; *);;
 
-@string_template
-=> nrel_variable_template: ..button_decomposition_variables_template;;
+@button_decomposition = < ..label; ..description >;;
 
-..button_decomposition_variables_template 
--> ..button_decomposition_variables_template_element;;
+@button_decomposition <- sc_node_tuple;;
 
-..button_decomposition_variables_template_element
--> rrel_variable: [content];
--> rrel_template: ..decomposition_template;;
-..decomposition_template =
-[*
-	_ui_element _=> nrel_decomposition:: _decomposition;;
-*];;
-_decomposition <- sc_node_tuple;;
+..button 
+	<- ostis_ui_kit_html_button;
+	<- ostis_ui_kit_color_accent;
+	<- ostis_ui_kit_button_size_large;
+	=> nrel_decomposition: @button_decomposition;;
 
-..decomposition_template
--> rrel_key_sc_element: _decomposition;
-=> nrel_replacements_variables: ..decomposition_replacement_set;;
+test_action_node
+	<- action_tranlate_sc_node_to_html;
+	<- question;
+	-> rrel_1: ..button;
+	-> rrel_expected_result: [<div class="ostis-ui-button ostis-ui-kit-button-large" 
+    style="background: #5896C0">
+    
+<p class="ostis-ui-text-output ostis-ui-kit-text-large" style=''>
+    CLICK ME
+</p>
 
-..decomposition_replacement_set
--> rrel_1: _decomposition;;
+<p class="ostis-ui-text-output ostis-ui-kit-text-small" style=''>
+    some description
+</p>
 
-
-@button_decomposition = < ..image1; ..image2; ..image3; ..text1 >;;
-
-button
-<- concept_button (* => nrel_html_template: @string_template;; *);
-=> nrel_decomposition: @button_decomposition;;
-
-concept_image
-=> nrel_html_template: [<img src="{{ path }}">] (* => nrel_variable_template: ..image_template_template_variable;;*);;
-
-..image_template_template_variable
--> ..image_template_variable;;
-..image_template_variable
--> rrel_variable: [path];
--> rrel_template: .image_template;;
-@image_path = _[];;
-.image_template = 
-[*
-	_ui_element _=> nrel_content:: @image_path;;
-*];;
-.image_template
--> rrel_key_sc_element: @image_path;
-=> nrel_replacements_variables: ..image_template_replacement_set;;
-
-..image_template_replacement_set
--> rrel_1: _ui_element;;
-
-concept_image
--> ..image1 (* => nrel_content: [/path/star.png];; *);
--> ..image2 (* => nrel_content: [/path/hearth.png];; *);
--> ..image3 (* => nrel_content: [/path/bigup.png];; *);;
-
-concept_output_text_field
--> ..text1 (* => nrel_content: [shiiiet];; *);
-=> nrel_html_template: [<p>{{ content }}</p>] (* => nrel_variable_template: ..text_field_variable_template;;*);;
-
-..text_field_variable_template
--> ..text_field_template_variable;;
-
-..text_field_template_variable
--> rrel_variable: [content];
--> rrel_template: ..text_field_template;;
-
-@text_field_content = _[];;
-
-..text_field_template = 
-[*
-	_ui_element _=> nrel_content:: @text_field_content;;
-*];;
-
-..text_field_template
--> rrel_key_sc_element: @text_field_content;
-=> nrel_replacements_variables: ..text_field_template_replacement_set;;
-
-..text_field_template_replacement_set
--> rrel_1: _ui_element;;
-
-sc_node_class
--> format_html;;
+</div>
+];;

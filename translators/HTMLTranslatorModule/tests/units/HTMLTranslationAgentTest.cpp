@@ -5,6 +5,7 @@
  */
 
 #include "sc_test.hpp"
+#include "sc_repo_path_collector.hpp"
 #include "scs_loader.hpp"
 
 #include "sc-agents-common/keynodes/coreKeynodes.hpp"
@@ -24,6 +25,7 @@ using namespace scAgentsCommon;
 namespace htmlTranslatorAgentTest
 {
 std::string const TEST_FILES_DIR_PATH = HTML_TRANSLATION_AGENT_TEST_SRC_PATH "/test-structures/";
+std::string const PROJECT_REPO_PATH = PROJECT_REPO_PATH_PATH;
 size_t const WAIT_TIME = 1000;
 using HTMLTranslatorAgentTest = ScMemoryTest;
 
@@ -49,16 +51,21 @@ void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsT
   InitializeTest();
 
   ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "ontology.scs");
+  ScRepoPathCollector collector;
+  ScRepoPathCollector::Sources excludeSources;
+  ScRepoPathCollector::Sources checkSources;
+  collector.ParseRepoPath(PROJECT_REPO_PATH, excludeSources, checkSources);
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFileName);
+  // load KB sources of the project
+  for (auto const & source : checkSources) {
+    loader.loadScsFile(context, source);}
 
   // Call the agent, get and validate result
   ScAddr test_action_node = context.HelperFindBySystemIdtf("test_action_node");
   EXPECT_TRUE(context.IsElement(test_action_node));
-  ScAddr action_tranlate_sc_node_to_html = context.HelperFindBySystemIdtf("action_tranlate_sc_node_to_html");
-  EXPECT_TRUE(context.IsElement(action_tranlate_sc_node_to_html));
-  context.CreateEdge(ScType::EdgeAccessConstPosPerm, action_tranlate_sc_node_to_html, test_action_node);
-  ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, test_action_node, WAIT_TIME);
+  ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, test_action_node, CoreKeynodes::rrel_1);
+  EXPECT_TRUE(context.IsElement(rootUiElement));
+  ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, HTMLTranslatorKeynodes::action_translate_sc_node_to_html, {rootUiElement}, WAIT_TIME);
   EXPECT_TRUE(context.IsElement(result));
   ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
   EXPECT_TRUE(context.IsElement(resultLink));
@@ -76,38 +83,14 @@ void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsT
   ShutdownTest();
 }
 
-TEST_F(HTMLTranslatorAgentTest, TranslateButton)
+TEST_F(HTMLTranslatorAgentTest, TranslateButtonDecomposition)
 {
-//  TestHTMLTranslatorAgent(*m_ctx, "test_translate_button.scs");
-  ScMemoryContext & context = *m_ctx;
-  InitializeTest();
+  TestHTMLTranslatorAgent(*m_ctx, "test_translate_button_decomposition.scs");
+}
 
-  ScsLoader loader;
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "ontology.scs");
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "test_translate_button.scs");
-
-  // Call the agent, get and validate result
-  ScAddr test_action_node = context.HelperFindBySystemIdtf("test_action_node");
-  EXPECT_TRUE(context.IsElement(test_action_node));
-  ScAddr action_tranlate_sc_node_to_html = context.HelperFindBySystemIdtf("action_tranlate_sc_node_to_html");
-  EXPECT_TRUE(context.IsElement(action_tranlate_sc_node_to_html));
-  context.CreateEdge(ScType::EdgeAccessConstPosPerm, action_tranlate_sc_node_to_html, test_action_node);
-  ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, test_action_node, WAIT_TIME);
-  EXPECT_TRUE(context.IsElement(result));
-  ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
-  EXPECT_TRUE(context.IsElement(resultLink));
-
-  std::string resultLinkContent;
-  context.GetLinkContent(resultLink, resultLinkContent);
-  EXPECT_NE(resultLinkContent, "");
-
-  // Check if the result is correct
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
-  std::string string_template_expected_result_content;
-  context.GetLinkContent(string_template_expected_result, string_template_expected_result_content);
-  EXPECT_EQ(string_template_expected_result_content, resultLinkContent);
-
-  ShutdownTest();
+TEST_F(HTMLTranslatorAgentTest, TranslateTextOutput)
+{
+  TestHTMLTranslatorAgent(*m_ctx, "test_translate_text_output.scs");
 }
 
 } // namespace htmlTranslatorAgentTest

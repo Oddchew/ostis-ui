@@ -4,7 +4,11 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
+#include "sc-agents-common/utils/IteratorUtils.hpp"
+#include "sc-memory/utils/sc_log.hpp"
+#include "sc-search/search_keynodes.h"
 #include "scs_loader.hpp"
+#include "sc_repo_path_collector.hpp"
 #include "sc_test.hpp"
 
 #include "sc-agents-common/keynodes/coreKeynodes.hpp"
@@ -25,6 +29,7 @@ namespace htmlTranslatorTest
 {
 ScsLoader loader;
 std::string const TEST_FILES_DIR_PATH = HTML_TRANSLATION_AGENT_TEST_SRC_PATH "/test-structures/";
+std::string const PROJECT_REPO_PATH = PROJECT_REPO_PATH_PATH;
 
 using HTMLTranslatorTest = ScMemoryTest;
 
@@ -48,21 +53,30 @@ void TestHTMLTranslator(ScMemoryContext & context, std::string const & scsTestFi
 {
   InitializeTest();
 
-  loader.loadScsFile(context, TEST_FILES_DIR_PATH + "ontology.scs");
+  ScRepoPathCollector collector;
+  ScRepoPathCollector::Sources excludeSources;
+  ScRepoPathCollector::Sources checkSources;
+  ScRepoPathCollector::Sources buildSources;
+  collector.ParseRepoPath(PROJECT_REPO_PATH, excludeSources, checkSources);
+  collector.CollectBuildSources("", excludeSources, checkSources, buildSources);
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFileName);
-
-  ScAddr rootUiElement = context.HelperFindBySystemIdtf("button");
+  // load KB sources of the project
+  for (auto const & source : buildSources) 
+  {
+    loader.loadScsFile(context, source);
+  }  
+  loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFileName);
+  ScAddr actionNode = context.HelperFindBySystemIdtf("test_action_node");
+  ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, scAgentsCommon::CoreKeynodes::rrel_1);
   EXPECT_TRUE(context.IsElement(rootUiElement));
-
-  ScAddr resultLink = HTMLTranslator::TranslateScToHTML(context, rootUiElement);
-  EXPECT_TRUE(context.IsElement(resultLink));
-
+  ScAddr resultLink;
+  resultLink = HTMLTranslator::TranslateScToHTML(context, rootUiElement);
   std::string resultLinkContent;
   context.GetLinkContent(resultLink, resultLinkContent);
   EXPECT_NE(resultLinkContent, "");
 
   // Check if the result is correct
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
+  ScAddr string_template_expected_result = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, context.HelperResolveSystemIdtf("rrel_expected_result"));
   std::string string_template_expected_result_content;
   context.GetLinkContent(string_template_expected_result, string_template_expected_result_content);
   EXPECT_EQ(string_template_expected_result_content, resultLinkContent);
@@ -70,9 +84,9 @@ void TestHTMLTranslator(ScMemoryContext & context, std::string const & scsTestFi
   ShutdownTest();
 }
 
-TEST_F(HTMLTranslatorTest, TranslateButton)
+TEST_F(HTMLTranslatorTest, TranslateTextOutput)
 {
-  TestHTMLTranslator(*m_ctx, "test_translate_button.scs");
+  TestHTMLTranslator(*m_ctx, "test_translate_text_output.scs");
 }
 
 TEST_F(HTMLTranslatorTest, TranslateDecompositionButton)
