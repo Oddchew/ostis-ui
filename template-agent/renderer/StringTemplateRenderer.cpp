@@ -141,7 +141,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
           for (ScAddr const & component : components)
           {
             ScAddr const templateAgentAnswer = AgentUtils::applyActionAndGetResultIfExists(
-                  &context, translateActionClass, {currentElement}, 300);
+                  &context, translateActionClass, {component}, 300);
             ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
             context.GetLinkContent(answerLink, currentComponentTranslation);
             dependentComponentsTranslation << currentComponentTranslation;

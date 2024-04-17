@@ -34,6 +34,7 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const
   ScAddr uiHTMLTemplateLink = GetUIComponentHTMLTemplate(context, rootUiElement);
   if (!context.IsElement(uiHTMLTemplateLink))
   {
+    SC_LOG_ERROR("HTMLTranslator: nrel_html_template not found.");
     return answerHTMLLink;
   }
 
