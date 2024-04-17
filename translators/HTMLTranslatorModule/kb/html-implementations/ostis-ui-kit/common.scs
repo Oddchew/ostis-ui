@@ -1,0 +1,10 @@
+concept_color
+  -> ostis_ui_kit_color_accent;
+  -> ostis_ui_kit_color_accent_hover;
+  -> ostis_ui_kit_color_inactive;
+  -> ostis_ui_kit_color_text_light;;
+
+ostis_ui_kit_color_accent => nrel_hex: [#5896C0];;
+ostis_ui_kit_color_accent_hover => nrel_hex: [#4980A5];;
+ostis_ui_kit_color_inactive => nrel_hex: [#C0C0C0];;
+ostis_ui_kit_color_text_light  => nrel_hex: [#FFFFFF];;

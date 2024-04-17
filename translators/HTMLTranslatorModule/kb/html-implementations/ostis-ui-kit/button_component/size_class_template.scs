@@ -22,7 +22,7 @@ ostis_ui_kit_button_size_small
 
 ostis_ui_kit_button_size_template =
 [*
-	ostis_ui_kit_button_size _-> .._button_size;;
+	concept_ostis_ui_kit_button_size _-> .._button_size;;
 	.._button_size _-> .._ui_element;;
 	.._button_size _=> nrel_css_class:: @size_class_value;;
 *];;
