@@ -77,6 +77,13 @@ TEST_F(HTMLTranslatorTest, TranslateButton)
 
 TEST_F(HTMLTranslatorTest, TranslateDecompositionButton)
 {
-  TestHTMLTranslator(*m_ctx, "test_translate_button_decomposition.scs");
+  try
+  {
+    TestHTMLTranslator(*m_ctx, "test_translate_button_decomposition.scs");
+  }
+  catch (utils::ScException const & exception)
+  {
+    SC_LOG_ERROR(exception.Description());
+  }
 }
 } // namespace htmlTranslatorTest

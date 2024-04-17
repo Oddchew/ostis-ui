@@ -174,6 +174,11 @@ ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacem
 {
   ScAddr const templateReplacementsSet = IteratorUtils::getAnyByOutRelation(&context, templateAddr, SpecifiedStringTemplateKeynodes::nrel_replacements_variables);
 
+  if (!context.IsElement(templateReplacementsSet))
+  {
+    throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: template has no nrel_replacements_variables.", ""));
+  }
+
   ScTemplateParams params;
   ScAddr replacementVariable = IteratorUtils::getAnyByOutRelation(&context, templateReplacementsSet, scAgentsCommon::CoreKeynodes::rrel_1);
   ScAddr replacementValue = IteratorUtils::getAnyByOutRelation(&context, stringTemplateLinkReplacements, scAgentsCommon::CoreKeynodes::rrel_1);

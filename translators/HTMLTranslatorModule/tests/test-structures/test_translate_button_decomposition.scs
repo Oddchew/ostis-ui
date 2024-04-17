@@ -10,16 +10,16 @@
 ..button_decomposition_variables_template 
 -> ..button_decomposition_variables_template_element;;
 
-button_decomposition_variables_template_element
+..button_decomposition_variables_template_element
 -> rrel_variable: [content];
 -> rrel_template: ..decomposition_template;;
-..decomposition_template = 
+..decomposition_template =
 [*
 	_ui_element _=> nrel_decomposition:: _decomposition;;
 *];;
 _decomposition <- sc_node_tuple;;
 
-decomposition_template
+..decomposition_template
 -> rrel_key_sc_element: _decomposition;
 => nrel_replacements_variables: ..decomposition_replacement_set;;
 
@@ -27,11 +27,11 @@ decomposition_template
 -> rrel_1: _decomposition;;
 
 
+@button_decomposition = < ..image1; ..image2; ..image3; ..text1 >;;
+
 button
 <- concept_button (* => nrel_html_template: @string_template;; *);
 => nrel_decomposition: @button_decomposition;;
-
-@button_decomposition = < ..image1; ..image2; ..image3; ..text1 >;;
 
 concept_image
 => nrel_html_template: [<img src="{{ path }}">] (* => nrel_variable_template: ..image_template_template_variable;;*);;
@@ -41,6 +41,7 @@ concept_image
 ..image_template_variable
 -> rrel_variable: [path];
 -> rrel_template: .image_template;;
+@image_path = _[];;
 .image_template = 
 [*
 	_ui_element _=> nrel_content:: @image_path;;
@@ -62,11 +63,13 @@ concept_output_text_field
 => nrel_html_template: [<p>{{ content }}</p>] (* => nrel_variable_template: ..text_field_variable_template;;*);;
 
 ..text_field_variable_template
--> ..text_field_template_variable;;]
+-> ..text_field_template_variable;;
 
 ..text_field_template_variable
 -> rrel_variable: [content];
 -> rrel_template: ..text_field_template;;
+
+@text_field_content = _[];;
 
 ..text_field_template = 
 [*
