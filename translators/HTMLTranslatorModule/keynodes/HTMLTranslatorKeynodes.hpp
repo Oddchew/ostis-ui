@@ -39,6 +39,12 @@ public:
 
   SC_PROPERTY(Keynode("format_html"), ForceCreate(ScType::NodeConstClass))
   static ScAddr format_html;
+
+  SC_PROPERTY(Keynode("servable_content"), ForceCreate(ScType::NodeConstClass))
+  static ScAddr servable_content;
+
+  SC_PROPERTY(Keynode("nrel_format"), ForceCreate(ScType::NodeConstClass))
+  static ScAddr nrel_format;
 };
 
 }  // namespace htmlTranslationModule

@@ -1,8 +1,61 @@
-ostis_ui_current_ui_model
-  -> ....text_output;;
+// * page template
+ostis_ui_kit_html_page
+  <- sc_node_class;
+  <- ostis_ui_kit_component;
+  <- ostis_ui_component_implementation;
+  <- ostis_ui_component_html_implementation;
+  <= nrel_inclusion: concept_user_interface_component;;
 
-..text_output 
+@ostis_ui_kit_html_page_template = "file://page_template.j2";;
+
+
+@ostis_ui_kit_html_page_template
+  => nrel_system_identifier: [ostis_ui_kit_html_page_template];
+  => nrel_variable_template: ostis_ui_kit_html_page_variables_nodes;;
+
+ostis_ui_kit_html_page_variables_nodes
+	-> ostis_ui_kit_html_page_decomposition_variable_node;;
+
+ostis_ui_kit_html_page_decomposition_variable_node
+-> rrel_variable: [decomposition];
+-> rrel_template: ostis_ui_decomposition_template;;
+
+ostis_ui_kit_html_page => nrel_html_template: @ostis_ui_kit_html_page_template;;
+
+// // page template *
+@page_decomposition = < ..text_output; ..label >;; 
+
+..page_model
+	<- ostis_ui_kit_html_page;
+	=> nrel_decomposition: @page_decomposition;;
+
+ostis_ui_current_ui_model
+  -> ..page_model;;
+
+..text_output
 	<- ostis_ui_kit_text_output;
 	<- ostis_ui_kit_text_size_large;
 	<- ui_component_text_output_weight_500;
 	=> nrel_content: [hello world] (* <- format_plaintext;; *);;
+
+..label
+	<- ostis_ui_kit_text_output;
+	<- ostis_ui_kit_text_size_large;
+	<- ui_component_text_output_weight_500;
+	=> nrel_content: [CLICK ME] (* <- format_plaintext;; *);;
+
+// ..description
+// 	<- ostis_ui_kit_text_output;
+// 	<- ostis_ui_kit_text_size_small;
+// 	<- ui_component_text_output_weight_500;
+// 	=> nrel_content: [some description] (* <- format_plaintext;; *);;
+
+// @button_decomposition = < ..label; ..description >;;
+
+// @button_decomposition <- sc_node_tuple;;
+
+// ..button
+// 	<- ostis_ui_kit_html_button;
+// 	<- ostis_ui_kit_color_accent;
+// 	<- ostis_ui_kit_button_size_large;
+// 	=> nrel_decomposition: @button_decomposition;;

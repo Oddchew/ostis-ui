@@ -25,7 +25,27 @@ void StartServer() {
             res.set_content(result, "text/html");
         }
     });
+    ScAddr servableFiles = HTMLTranslatorKeynodes::servable_content;
+    ScAddrVector servableFilesSet = utils::IteratorUtils::getAllWithType(&ctx, servableFiles, ScType::LinkConst);
+    for (ScAddr file : servableFilesSet) {
+      std::string fileName = ctx.HelperGetSystemIdtf(file);
+      if(fileName.empty()) {
+        throw utils::ScException("OSTIS-UI HTTPServer: servable file doesn't have an nrel_system_idtf", "");
+      }
+      SC_LOG_INFO("servable file detected" << fileName);
+      server.Get("/" + fileName, [&](const httplib::Request& req, httplib::Response& res) {
+        std::string fileContent;
+        ctx.GetLinkContent(file, fileContent);
+        if (fileContent.empty()) {
+          throw utils::ScException("Error: servable file is empty.", "");
+        }
+        else {
+          // let's find the format for the HTTP response
 
+          res.set_content(fileContent, "text/plain");
+        }
+      });
+    }
     // Start the server
     std::cout << "Starting server on port 8080..." << std::endl;
     server.listen("localhost", 8080);

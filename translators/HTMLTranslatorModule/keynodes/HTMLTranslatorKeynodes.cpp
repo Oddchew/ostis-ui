@@ -15,5 +15,8 @@ ScAddr HTMLTranslatorKeynodes::nrel_html_template;
 ScAddr HTMLTranslatorKeynodes::nrel_html_representation;
 ScAddr HTMLTranslatorKeynodes::action_evaluate_specified_string_template;
 ScAddr HTMLTranslatorKeynodes::format_html;
+ScAddr HTMLTranslatorKeynodes::servable_content;
+ScAddr HTMLTranslatorKeynodes::nrel_format;
+
 
 }  // namespace htmlTranslationModule
