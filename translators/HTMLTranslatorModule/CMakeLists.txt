@@ -10,6 +10,7 @@ set(HTML_TRANSLATOR_HEADERS
     "keynodes/HTMLTranslatorKeynodes.hpp"
     "agents/HTMLTranslatorAgent.hpp"
     "html-translator/HTMLTranslator.hpp"
+    "HTTPServer.hpp"
 )
 
 add_library(
@@ -21,7 +22,7 @@ target_include_directories(
         PRIVATE ${CMAKE_CURRENT_LIST_DIR}
         PUBLIC ${SC_MEMORY_SRC} ${SC_KPM_SRC})
 
-target_link_libraries(ostis-ui-html-translator PUBLIC sc-memory sc-agents-common)
+target_link_libraries(ostis-ui-html-translator PUBLIC sc-memory sc-agents-common PRIVATE httplib)
 
 sc_codegen_ex(ostis-ui-html-translator ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/generated)
 

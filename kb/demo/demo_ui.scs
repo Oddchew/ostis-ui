@@ -1,0 +1,8 @@
+ostis_ui_current_ui_model
+  -> ....text_output;;
+
+..text_output 
+	<- ostis_ui_kit_text_output;
+	<- ostis_ui_kit_text_size_large;
+	<- ui_component_text_output_weight_500;
+	=> nrel_content: [hello world] (* <- format_plaintext;; *);;
