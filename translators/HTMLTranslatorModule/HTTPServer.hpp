@@ -2,6 +2,7 @@
 #include "sc-agents-common/utils/IteratorUtils.hpp"
 #include "sc-memory/sc_memory.hpp"
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
+#include "sc-memory/utils/sc_log.hpp"
 #include <httplib.h>
 
 namespace htmlTranslationModule {
@@ -32,17 +33,51 @@ void StartServer() {
       if(fileName.empty()) {
         throw utils::ScException("OSTIS-UI HTTPServer: servable file doesn't have an nrel_system_idtf", "");
       }
-      SC_LOG_INFO("servable file detected" << fileName);
-      server.Get("/" + fileName, [&](const httplib::Request& req, httplib::Response& res) {
+      std::string routePath ="/" + fileName;
+      server.Get(routePath, [&](const httplib::Request& req, httplib::Response& res) {
         std::string fileContent;
         ctx.GetLinkContent(file, fileContent);
         if (fileContent.empty()) {
+          SC_LOG_ERROR("HTTPServer: servable file is empty.");
           throw utils::ScException("Error: servable file is empty.", "");
         }
         else {
+          ScAddr HTTPFormatLink;
           // let's find the format for the HTTP response
+          std::string const FileFormatClassAlias = "_html_template_link";
+          std::string const FileFormatLinkAlias = "_file_format_link";
+          ScTemplate FileFormatHTTPDescription;
+          FileFormatHTTPDescription.Quintuple(
+                file, 
+                ScType::EdgeDCommonVar, 
+                ScType::NodeVarClass >> FileFormatClassAlias, 
+                ScType::EdgeAccessVarPosPerm, 
+                HTMLTranslatorKeynodes::nrel_format);
+          FileFormatHTTPDescription.Quintuple(
+                FileFormatClassAlias, 
+                ScType::EdgeDCommonVar, 
+                ScType::LinkVar >> FileFormatLinkAlias, 
+                ScType::EdgeAccessVarPosPerm, 
+                HTMLTranslatorKeynodes::nrel_mime_type);
+          ctx.HelperSmartSearchTemplate(
+            FileFormatHTTPDescription, 
+            [&FileFormatLinkAlias, &HTTPFormatLink](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
+            {
+              item.Get(FileFormatLinkAlias, HTTPFormatLink);
+              return ScTemplateSearchRequest::STOP;
+            }
+        );
 
-          res.set_content(fileContent, "text/plain");
+          if (!ctx.IsElement(HTTPFormatLink)) {
+            throw utils::ScException("HTTPServer: HTTPFormatLink is invalid.", "");
+            SC_LOG_ERROR("HTTPServer: HTTPFormatLink is invalid.");
+
+          }
+          else {
+            std::string fileFormat;
+            ctx.GetLinkContent(HTTPFormatLink, fileFormat);
+            res.set_content(fileContent, fileFormat);
+          }
         }
       });
     }

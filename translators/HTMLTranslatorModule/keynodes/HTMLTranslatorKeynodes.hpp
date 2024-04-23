@@ -34,6 +34,9 @@ public:
   SC_PROPERTY(Keynode("nrel_html_representation"), ForceCreate(ScType::NodeConstNoRole))
   static ScAddr nrel_html_representation;
 
+  SC_PROPERTY(Keynode("nrel_mime_type"), ForceCreate(ScType::NodeConstNoRole))
+  static ScAddr nrel_mime_type;
+
   SC_PROPERTY(Keynode("action_evaluate_specified_string_template"), ForceCreate)
   static ScAddr action_evaluate_specified_string_template;
 

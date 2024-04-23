@@ -12,3 +12,7 @@ ostis_ui_kit_color_text_light  => nrel_hex: [#FFFFFF];;
 @ostis_ui_kit_style_css = "file://style.css";;
 @ostis_ui_kit_style_css => nrel_system_identifier: [ostis_ui_kit_style.css];;
 servable_content -> @ostis_ui_kit_style_css;;
+format_css
+  <- sc_node_class;;
+@ostis_ui_kit_style_css => nrel_format: format_css;;
+format_css => nrel_mime_type: [text/css];;
