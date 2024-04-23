@@ -24,7 +24,8 @@ test_action_node
 	<- action_tranlate_sc_node_to_html;
 	<- question;
 	-> rrel_1: ..button;
-	-> rrel_expected_result: [<div class="ostis-ui-button ostis-ui-kit-button-large" 
+	-> rrel_expected_result: [<button>
+    <div class="ostis-ui-kit-button ostis-ui-kit-button-large" 
     style="background: #5896C0">
     
 <p class="ostis-ui-text-output ostis-ui-kit-text-large" style=''>
@@ -35,5 +36,6 @@ test_action_node
     some description
 </p>
 
-</div>
+    </div>
+</button>
 ];;

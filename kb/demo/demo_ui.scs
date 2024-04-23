@@ -13,6 +13,8 @@ ostis_ui_kit_html_page
   => nrel_system_identifier: [ostis_ui_kit_html_page_template];
   => nrel_variable_template: ostis_ui_kit_html_page_variables_nodes;;
 
+ostis_ui_kit_html_page => nrel_html_template: @ostis_ui_kit_html_page_template;;
+
 ostis_ui_kit_html_page_variables_nodes
 	-> ostis_ui_kit_html_page_decomposition_variable_node;;
 
@@ -20,10 +22,9 @@ ostis_ui_kit_html_page_decomposition_variable_node
 -> rrel_variable: [decomposition];
 -> rrel_template: ostis_ui_decomposition_template;;
 
-ostis_ui_kit_html_page => nrel_html_template: @ostis_ui_kit_html_page_template;;
 
-// // page template *
-@page_decomposition = < ..text_output; ..label >;; 
+// page template *
+@page_decomposition = < ..text_output; ..label; ..button >;; 
 
 ..page_model
 	<- ostis_ui_kit_html_page;
@@ -42,20 +43,22 @@ ostis_ui_current_ui_model
 	<- ostis_ui_kit_text_output;
 	<- ostis_ui_kit_text_size_large;
 	<- ui_component_text_output_weight_500;
+	<- ostis_ui_kit_color_text_light;
 	=> nrel_content: [CLICK ME] (* <- format_plaintext;; *);;
 
-// ..description
-// 	<- ostis_ui_kit_text_output;
-// 	<- ostis_ui_kit_text_size_small;
-// 	<- ui_component_text_output_weight_500;
-// 	=> nrel_content: [some description] (* <- format_plaintext;; *);;
+..description
+	<- ostis_ui_kit_text_output;
+	<- ostis_ui_kit_text_size_small;
+	<- ui_component_text_output_weight_500;	
+	<- ostis_ui_kit_color_text_light;
+	=> nrel_content: [some description] (* <- format_plaintext;; *);;
 
-// @button_decomposition = < ..label; ..description >;;
+@button_decomposition = < ..label; ..description >;;
 
-// @button_decomposition <- sc_node_tuple;;
+@button_decomposition <- sc_node_tuple;;
 
-// ..button
-// 	<- ostis_ui_kit_html_button;
-// 	<- ostis_ui_kit_color_accent;
-// 	<- ostis_ui_kit_button_size_large;
-// 	=> nrel_decomposition: @button_decomposition;;
+..button
+	<- ostis_ui_kit_html_button;
+	<- ostis_ui_kit_color_accent;
+	<- ostis_ui_kit_button_size_large;
+	=> nrel_decomposition: @button_decomposition;;
