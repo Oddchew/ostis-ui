@@ -31,7 +31,6 @@ if(OSTIS_UI_BUILD_TESTS)
 endif()
 # }}} configure tests
 
-set(TEMPLATE_AGENT_MODULE_SRC "${CMAKE_CURRENT_LIST_DIR}/template-agent")
 add_definitions(-DPROJECT_REPO_PATH_PATH="${CMAKE_CURRENT_LIST_DIR}/repo.path")
 
 set(HTTPLIB_SRC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/cpp-httplib")
@@ -42,4 +41,3 @@ add_subdirectory(template-agent)
 add_subdirectory(action-interpreter)
 add_subdirectory(model-generators)
 add_subdirectory(translators)
-

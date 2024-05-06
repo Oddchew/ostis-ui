@@ -22,13 +22,13 @@ set(SPECIFIED_TEMPLATE_AGENT_HEADERS
 "SpecifiedStringTemplateModule.hpp"
 )
 
-add_library(
+add_library( 
     ostis-specified-template-agent 
     SHARED ${SPECIFIED_TEMPLATE_AGENT_SOURCES} ${SPECIFIED_TEMPLATE_AGENT_HEADERS})
 
 target_include_directories(
     ostis-specified-template-agent
-    PRIVATE ${CMAKE_CURRENT_LIST_DIR}
+    PUBLIC ${CMAKE_CURRENT_LIST_DIR}
     PUBLIC ${SC_MEMORY_SRC} ${SC_KPM_SRC} ${inja_SOURCE_DIR}/single_include/inja)
 
 target_link_libraries(ostis-specified-template-agent PUBLIC sc-memory sc-agents-common nlohmann_json::nlohmann_json)
