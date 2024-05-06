@@ -15,4 +15,4 @@ servable_content -> @ostis_ui_kit_style_css;;
 format_css
   <- sc_node_class;;
 @ostis_ui_kit_style_css => nrel_format: format_css;;
-format_css => nrel_mime_type: [text/css];;
+format_css => nrel_mimetype: [text/css];;

@@ -13,7 +13,7 @@ ScAddr HTMLTranslatorKeynodes::nrel_decomposition;
 ScAddr HTMLTranslatorKeynodes::concept_user_interface_component;
 ScAddr HTMLTranslatorKeynodes::nrel_html_template;
 ScAddr HTMLTranslatorKeynodes::nrel_html_representation;
-ScAddr HTMLTranslatorKeynodes::nrel_mime_type;
+ScAddr HTMLTranslatorKeynodes::nrel_mimetype;
 ScAddr HTMLTranslatorKeynodes::action_evaluate_specified_string_template;
 ScAddr HTMLTranslatorKeynodes::format_html;
 ScAddr HTMLTranslatorKeynodes::servable_content;
