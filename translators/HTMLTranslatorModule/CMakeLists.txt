@@ -3,6 +3,7 @@ set(HTML_TRANSLATOR_SOURCES
 	"keynodes/HTMLTranslatorKeynodes.cpp"
 	"agents/HTMLTranslatorAgent.cpp"
     "html-translator/HTMLTranslator.cpp"
+    "HTTPServer.cpp"
 )
 
 set(HTML_TRANSLATOR_HEADERS
