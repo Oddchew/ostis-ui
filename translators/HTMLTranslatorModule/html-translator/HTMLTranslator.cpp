@@ -46,13 +46,6 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const
     throw utils::ScException(utils::ExceptionInvalidState("HTMLTranslator: SpecifiedStringTemplateAgent answer is invalid.", ""));
   }
 
-  // Get root element decomposition and iterate over all the child elements
-//  ScAddrVector uiElementDecomposition = IteratorUtils::getAllByOutRelation(&context, rootUiElement, HTMLTranslatorKeynodes::nrel_decomposition);
-//  for (ScAddr const & childUIElement : uiElementDecomposition)
-//  {
-//
-//  }
-
   return answerHTMLLink;
 }
 
