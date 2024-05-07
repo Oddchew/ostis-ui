@@ -1,10 +1,17 @@
-#include "sc-memory/sc_debug.hpp"
 #include "sc-memory/sc_memory.hpp"
 #include <httplib.h>
 #include <string>
+#include "sc-memory/sc_debug.hpp"
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
 
 namespace htmlTranslationModule {
+
+ScAddr ConvertToScAddr(const std::string str) {
+    ScAddr::HashType value;
+    std::istringstream iss(str);
+    iss >> value;
+    return ScAddr(value);
+}
 
 std::pair<std::string, std::string> GetFileContent(ScMemoryContext *ctx, ScAddr scFile) {
   std::string fileContent;

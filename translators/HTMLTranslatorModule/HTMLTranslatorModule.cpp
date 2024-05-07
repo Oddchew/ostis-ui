@@ -6,26 +6,25 @@
 
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
 #include "agents/HTMLTranslatorAgent.hpp"
-#include <thread>
 #include "HTMLTranslatorModule.hpp"
 #include "HTTPServer.hpp"
 using namespace htmlTranslationModule;
 
 SC_IMPLEMENT_MODULE(HTMLTranslatorModule)
-std::thread server_thread;
+ServerWrapper server;
 
 sc_result HTMLTranslatorModule::InitializeImpl()
 {
   if (!HTMLTranslatorKeynodes::InitGlobal())
     return SC_RESULT_ERROR;
-
   SC_AGENT_REGISTER(HTMLTranslatorAgent);
-  server_thread = std::thread(StartServer);
+  server.StartServer();
   return SC_RESULT_OK;
 }
 
 sc_result HTMLTranslatorModule::ShutdownImpl()
 {
+  server.StopServer();
   SC_AGENT_UNREGISTER(HTMLTranslatorAgent);
   return SC_RESULT_OK;
 }
