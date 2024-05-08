@@ -4,6 +4,7 @@ set(HTML_TRANSLATOR_SOURCES
 	"agents/HTMLTranslatorAgent.cpp"
     "html-translator/HTMLTranslator.cpp"
     "HTTPServer.cpp"
+    "HTTPRequestHandler.cpp"
 )
 
 set(HTML_TRANSLATOR_HEADERS
@@ -12,6 +13,7 @@ set(HTML_TRANSLATOR_HEADERS
     "agents/HTMLTranslatorAgent.hpp"
     "html-translator/HTMLTranslator.hpp"
     "HTTPServer.hpp"
+    "HTTPRequestHandler.hpp"
 )
 
 add_library(
