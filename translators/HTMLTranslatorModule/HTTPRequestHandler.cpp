@@ -115,7 +115,7 @@ void HTTPRequestHandler::FileByAddrRequestHandler(const httplib::Request& req, h
   //TODO: use user-specific context
   ScMemoryContext * context = new ScMemoryContext();
   ScAddr fileAddr;
-  if (!req.has_param("addr")) {
+  if (!req.path_params.count("addr")) {
     res.status = 400;
     return;
   }
@@ -127,7 +127,7 @@ void HTTPRequestHandler::FileByAddrRequestHandler(const httplib::Request& req, h
 void HTTPRequestHandler::FileBySystemIdtfRequestHandler(const httplib::Request& req, httplib::Response& res) noexcept {
   ScMemoryContext * context = new ScMemoryContext();
   ScAddr fileAddr;
-  if (!req.has_param("system_idtf")) {
+  if (!req.path_params.count("system_idtf")) {
     res.status = 400;
     return;
   }
