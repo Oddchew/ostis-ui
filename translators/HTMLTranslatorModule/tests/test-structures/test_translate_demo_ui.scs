@@ -1,0 +1,39 @@
+test_action_node
+	<- action_tranlate_sc_node_to_html;
+	<- question;
+	-> rrel_1: demo_ui;
+	-> rrel_expected_result:
+[<!DOCTYPE html>
+
+<head>
+   <link rel="stylesheet" href="/files/by_system_idtf/ostis_ui_kit_style.css">
+</head>
+
+<body>
+
+<p class="ostis-ui-text-output ostis-ui-kit-text-large" style=''>
+    hello world
+</p>
+
+<p class="ostis-ui-text-output ostis-ui-kit-text-large" style=''>
+    CLICK ME
+</p>
+<button>
+    <div class="ostis-ui-kit-button ostis-ui-kit-button-large" 
+    style="background: #5896C0">
+    
+<p class="ostis-ui-text-output ostis-ui-kit-text-large" style=''>
+    CLICK ME
+</p>
+
+<p class="ostis-ui-text-output ostis-ui-kit-text-small" style=''>
+    some description
+</p>
+
+    </div>
+</button>
+
+</body>
+
+</html>
+];;

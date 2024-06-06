@@ -26,12 +26,12 @@ ostis_ui_kit_html_page_decomposition_variable_node
 // page template *
 @page_decomposition = < ..text_output; ..label; ..button >;; 
 
-..page_model
+demo_ui
 	<- ostis_ui_kit_html_page;
 	=> nrel_decomposition: @page_decomposition;;
 
 ostis_ui_current_ui_model
-  -> ..page_model;;
+  -> demo_ui;;
 
 ..text_output
 	<- ostis_ui_kit_text_output;

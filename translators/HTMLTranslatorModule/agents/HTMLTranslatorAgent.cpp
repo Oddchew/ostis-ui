@@ -46,7 +46,7 @@ SC_AGENT_IMPLEMENTATION(HTMLTranslatorAgent)
   {
     return SC_RESULT_OK;
   }
-  SC_LOG_DEBUG("HTMLTranslatorAgent started");
+  SC_LOG_INFO("HTMLTranslatorAgent started");
 
   // Get root user interface element from sc-model
   ScAddr const rootUiElement = IteratorUtils::getAnyByOutRelation(&m_memoryCtx, actionNode, scAgentsCommon::CoreKeynodes::rrel_1);
@@ -62,7 +62,7 @@ SC_AGENT_IMPLEMENTATION(HTMLTranslatorAgent)
 
   // Create agent answer and finish agent work
   AgentUtils::finishAgentWork(&m_memoryCtx, actionNode, {answerHTMLLink}, true);
-  SC_LOG_DEBUG("HTMLTranslatorAgent finished");
+  SC_LOG_INFO("HTMLTranslatorAgent finished");
   return SC_RESULT_OK;
 }
 

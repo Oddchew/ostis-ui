@@ -32,7 +32,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
 
   if (!templateStringLinkExists)
   {
-    throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: string template link has no content.", ""));
+    SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: string template link has no content.");
   }
 
   ScAddr const variablesSetAddr = IteratorUtils::getAnyByOutRelation(
@@ -60,7 +60,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     // Get variable and corresponding template to find variable value
     if (!context.IsElement(variableAddr) || !context.IsElement(templateAddr))
     {
-      throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: string template variables are specified incorrectly.", ""));
+      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: string template variables are specified incorrectly.");
     }
     context.GetLinkContent(variableAddr, variableContent);
     SC_LOG_DEBUG("StringTemplateRenderer: found variable " << variableContent);
@@ -94,7 +94,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     if (!context.IsElement(keyScElementValue))
     {
       SC_LOG_ERROR("StringTemplateRenderer: can't find value for variable " << variableContent);
-      throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: template is not found.", ""));
+      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: template is not found.");
     }
     ScType keyScElementValueType = context.GetElementType(keyScElementValue);
 
@@ -112,7 +112,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     ScAddr translateActionClass = IteratorUtils::getAnyByOutRelation(&context, stringFormatAddr, SpecifiedStringTemplateKeynodes::nrel_translation_action);
     if (!context.IsElement(translateActionClass))
     {
-      throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: can't translate a node to the specified format: action not found.", ""));
+      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: can't translate a node to the specified format: action not found.");
     }
     SC_LOG_DEBUG("StringTemplateRenderer: found action class for translation to a format: " << context.HelperGetSystemIdtf(translateActionClass));
     std::stringstream dependentComponentsTranslation;
@@ -178,7 +178,7 @@ ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacem
 
   if (!context.IsElement(templateReplacementsSet))
   {
-    throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: template has no nrel_replacements_variables.", ""));
+    SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: template has no nrel_replacements_variables.");
   }
 
   ScTemplateParams params;
@@ -187,7 +187,6 @@ ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacem
   while (context.IsElement(replacementVariable) && context.IsElement(replacementValue))
   {
     params.Add(replacementVariable, replacementValue);
-    SC_LOG_DEBUG("StringTemplateRenderer: add replacement " << context.HelperGetSystemIdtf(replacementVariable) << ": " << context.HelperGetSystemIdtf(replacementValue));
     replacementVariable = IteratorUtils::getNextFromSet(&context, templateReplacementsSet, replacementVariable);
     replacementValue = IteratorUtils::getNextFromSet(&context, stringTemplateLinkReplacements, replacementValue);
   }

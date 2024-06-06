@@ -25,7 +25,7 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   {
     return SC_RESULT_OK;
   }
-  SC_LOG_DEBUG("SpecifiedStringTemplateAgent started");
+  SC_LOG_INFO("SpecifiedStringTemplateAgent started");
 
   // Get string template sc-link
   ScAddr const stringTemplateLink = IteratorUtils::getAnyByOutRelation(
@@ -34,7 +34,7 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   if (!m_memoryCtx.IsElement(stringTemplateLink))
   {
     SC_LOG_ERROR("Action doesn't have a string template link.");
-    SC_LOG_DEBUG("SpecifiedStringTemplateAgent finished");
+    SC_LOG_INFO("SpecifiedStringTemplateAgent finished");
     AgentUtils::finishAgentWork(&m_memoryCtx, actionNode, false);
     return SC_RESULT_ERROR_INVALID_PARAMS;
   }
@@ -49,7 +49,7 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   if (!m_memoryCtx.IsElement(generatedLinkFormatClass))
   {
     SC_LOG_ERROR("Action doesn't have a format.");
-    SC_LOG_DEBUG("SpecifiedStringTemplateAgent finished");
+    SC_LOG_INFO("SpecifiedStringTemplateAgent finished");
     AgentUtils::finishAgentWork(&m_memoryCtx, actionNode, false);
     return SC_RESULT_ERROR_INVALID_PARAMS;
   }
@@ -63,7 +63,7 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   {
     SC_LOG_ERROR(exception.Description());
     AgentUtils::finishAgentWork(&m_memoryCtx, actionNode, false);
-    SC_LOG_DEBUG("SpecifiedStringTemplateAgent finished");
+    SC_LOG_INFO("SpecifiedStringTemplateAgent finished");
     return SC_RESULT_ERROR;
   }
 
@@ -79,7 +79,7 @@ SC_AGENT_IMPLEMENTATION(SpecifiedStringTemplateAgent)
   // Create agent answer and finish agent work
   ScAddrVector const agentResult = {resultLink};
   AgentUtils::finishAgentWork(&m_memoryCtx, actionNode, agentResult, true);
-  SC_LOG_DEBUG("SpecifiedStringTemplateAgent finished");
+  SC_LOG_INFO("SpecifiedStringTemplateAgent finished");
   return SC_RESULT_OK;
 }
 
