@@ -33,7 +33,7 @@ void ServerWrapper::Run()
              });
 
   // Start the server
-  SC_LOG_INFO("[ostis-ui] HTTP-server server is running on port 8080");
+  SC_LOG_INFO("[ostis-ui] HTTP-server is running on port 8080");
   m_server.listen("localhost", 8080);
 }
 
@@ -44,7 +44,7 @@ void ServerWrapper::StopServer()
   if (m_serverThread.joinable())
     m_serverThread.join();
 
-  SC_LOG_INFO("[ostis-ui] HTTP-server server is stopped");
+  SC_LOG_INFO("[ostis-ui] HTTP-server is stopped");
 }
 
 } // namespace htmlTranslationModule

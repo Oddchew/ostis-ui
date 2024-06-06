@@ -66,8 +66,12 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     SC_LOG_DEBUG("StringTemplateRenderer: found variable " << variableContent);
 
     ScAddr const keyScElement = IteratorUtils::getAnyByOutRelation(&context, templateAddr, scAgentsCommon::CoreKeynodes::rrel_key_sc_element);
-    ScAddr keyScElementValue;
+    if (!context.IsElement(keyScElement))
+    {
+      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: string template key sc element is specified incorrectly.");
+    }
 
+    ScAddr keyScElementValue;
     ScTemplate scTemplate;
     ScTemplateParams params;
     // Fill ScTemplateParams if valid replacements are passed as a parameter (e.g. real user interface component to pass in sc-template)
@@ -77,20 +81,14 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     }
 
     // Build template from knowledge base address and search by it
-    try
+    context.HelperBuildTemplate(scTemplate, templateAddr, params);
+    // We need only one result to find
+    context.HelperSmartSearchTemplate(scTemplate, [&keyScElement, &keyScElementValue](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
     {
-      context.HelperBuildTemplate(scTemplate, templateAddr, params);
-      // We need only one result to find
-      context.HelperSmartSearchTemplate(scTemplate, [&keyScElement, &keyScElementValue](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
-      {
-        item.Get(keyScElement, keyScElementValue);
-        return ScTemplateSearchRequest::STOP;
-      });
-    }
-    catch (ScException const & exception)
-    {
-      SC_LOG_ERROR(exception.Message());
-    }
+      item.Get(keyScElement, keyScElementValue);
+      return ScTemplateSearchRequest::STOP;
+    });
+
     if (!context.IsElement(keyScElementValue))
     {
       SC_LOG_ERROR("StringTemplateRenderer: can't find value for variable " << variableContent);
@@ -162,7 +160,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     }
     else 
     {
-      throw utils::ScException(utils::ExceptionItemNotFound("StringTemplateRenderer: template found a key element of an unsupported type.", ""));
+      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: template found a key element of an unsupported type.");
    }
   }
 
