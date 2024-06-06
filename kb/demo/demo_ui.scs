@@ -3,9 +3,7 @@ ostis_ui_current_ui_model
 
 demo_ui
 	<- ostis_ui_kit_html_page;
-	=> nrel_decomposition: @page_decomposition;;
-
-@page_decomposition = < ..text_output; ..label; ..button >;;
+	=> nrel_decomposition: < ..text_output; ..label; ..button >;;
 
 ..text_output
 	<- ostis_ui_kit_text_output;

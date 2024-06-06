@@ -1,4 +1,4 @@
-stis_ui_kit_html_page
+ostis_ui_kit_html_page
   <- sc_node_class;
   <- ostis_ui_kit_component;
   <- ostis_ui_component_implementation;
@@ -6,8 +6,6 @@ stis_ui_kit_html_page
   <= nrel_inclusion: concept_user_interface_component;;
 
 @ostis_ui_kit_html_page_template = "file://page_template.j2";;
-
-
 @ostis_ui_kit_html_page_template
   => nrel_system_identifier: [ostis_ui_kit_html_page_template];
   => nrel_variable_template: ostis_ui_kit_html_page_variables_nodes;;
