@@ -6,42 +6,35 @@
 
 #pragma once
 
+#include <sc-memory/sc_keynodes.hpp>
+
 #include "sc-memory/sc_addr.hpp"
 #include "sc-memory/sc_object.hpp"
 
-#include "SpecifiedStringTemplateKeynodes.generated.hpp"
+#include "sc-memory/sc_agent.hpp"
+#include "sc-memory/sc_keynodes.hpp"
+#include "sc-memory/sc_memory.hpp"
 
 namespace specifiedStringTemplateModule
 {
-class SpecifiedStringTemplateKeynodes : public ScObject
+class SpecifiedStringTemplateKeynodes : public ScKeynodes
 {
-  SC_CLASS()
-  SC_GENERATED_BODY()
+  public:
+  static inline ScKeynode const action_evaluate_specified_string_template{"action_evaluate_specified_string_template"};
 
-public:
-  SC_PROPERTY(Keynode("action_evaluate_specified_string_template"), ForceCreate)
-  static ScAddr action_evaluate_specified_string_template;
+  static inline ScKeynode const nrel_variable_template{"nrel_variable_template", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_variable_template"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_variable_template;
+  static inline ScKeynode const nrel_format{"nrel_format", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_format"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_format;
+  static inline ScKeynode const rrel_variable{"rrel_variable", ScType::ConstNodeRole};
 
-  SC_PROPERTY(Keynode("rrel_variable"), ForceCreate(ScType::NodeConstRole))
-  static ScAddr rrel_variable;
+  static inline ScKeynode const rrel_value{"rrel_value", ScType::ConstNodeRole};
 
-  SC_PROPERTY(Keynode("rrel_value"), ForceCreate(ScType::NodeConstRole))
-  static ScAddr rrel_value;
+  static inline ScKeynode const rrel_template{"rrel_template", ScType::ConstNodeRole};
 
-  SC_PROPERTY(Keynode("rrel_template"), ForceCreate(ScType::NodeConstRole))
-  static ScAddr rrel_template;
+  static inline ScKeynode const nrel_replacements_variables{"nrel_replacements_variables", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_replacements_variables"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_replacements_variables;
-
-  SC_PROPERTY(Keynode("nrel_translation_action"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_translation_action;
+  static inline ScKeynode const nrel_translation_action{"nrel_translation_action", ScType::ConstNodeNonRole};
 };
 
 }  // namespace specifiedStringTemplateModule

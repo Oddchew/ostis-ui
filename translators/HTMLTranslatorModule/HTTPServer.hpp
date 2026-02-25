@@ -3,7 +3,8 @@
 #include <httplib.h>
 #include <string>
 
-namespace htmlTranslationModule {
+namespace htmlTranslationModule
+{
 
 class ServerWrapper
 {
@@ -19,8 +20,8 @@ public:
   void StopServer();
 
 protected:
-    std::thread m_serverThread;
-    httplib::Server m_server;
-    std::atomic<sc_bool> m_isRunning;
- };
-}
+  std::thread m_serverThread;
+  httplib::Server m_server;
+  std::atomic<sc_bool> m_isRunning;
+};
+}  // namespace htmlTranslationModule

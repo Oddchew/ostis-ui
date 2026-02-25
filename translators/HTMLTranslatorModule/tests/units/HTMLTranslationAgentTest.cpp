@@ -8,8 +8,6 @@
 #include "sc_repo_path_collector.hpp"
 #include "scs_loader.hpp"
 
-#include "sc-agents-common/keynodes/coreKeynodes.hpp"
-#include "sc-agents-common/utils/AgentUtils.hpp"
 #include "sc-agents-common/utils/IteratorUtils.hpp"
 #include "sc-memory/kpm/sc_agent.hpp"
 
@@ -20,8 +18,6 @@
 
 using namespace specifiedStringTemplateModule;
 using namespace htmlTranslationModule;
-using namespace scAgentsCommon;
-
 namespace htmlTranslatorAgentTest
 {
 ScsLoader loader;
@@ -32,19 +28,23 @@ using HTMLTranslatorAgentTest = ScMemoryTest;
 
 void InitializeTest()
 {
-  CoreKeynodes::InitGlobal();
+  ScKeynodes::InitGlobal();
   HTMLTranslatorKeynodes::InitGlobal();
   SpecifiedStringTemplateKeynodes::InitGlobal();
 
   ScAgentInit(true);
-  SC_AGENT_REGISTER(HTMLTranslatorAgent);
-  SC_AGENT_REGISTER(SpecifiedStringTemplateAgent);
+  //todo(codegen-removal): Use agentContext.SubscribeAgent<HTMLTranslatorAgent> or UnsubscribeAgent; to register and unregister agent
+SC_AGENT_REGISTER(HTMLTranslatorAgent);
+  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
+SC_AGENT_REGISTER(SpecifiedStringTemplateAgent);
 }
 
 void ShutdownTest()
 {
-  SC_AGENT_UNREGISTER(HTMLTranslatorAgent);
-  SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
+  //todo(codegen-removal): Use agentContext.SubscribeAgent<HTMLTranslatorAgent> or UnsubscribeAgent; to register and unregister agent
+SC_AGENT_UNREGISTER(HTMLTranslatorAgent);
+  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
+SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
 }
 
 void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsTestFileName)
@@ -65,10 +65,11 @@ void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsT
   }
 
   // Call the agent, get and validate result
-  ScAddr actionNode = context.HelperFindBySystemIdtf("test_action_node");
+  ScAddr actionNode = context.SearchElementBySystemIdentifier("test_action_node");
   EXPECT_TRUE(context.IsElement(actionNode));
-  ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, CoreKeynodes::rrel_1);
+  ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, ScKeynodes::rrel_1);
   EXPECT_TRUE(context.IsElement(rootUiElement));
+//todo(codegen-removal): replace AgentUtils:: usage
   ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, HTMLTranslatorKeynodes::action_translate_sc_node_to_html, {rootUiElement}, WAIT_TIME);
   EXPECT_TRUE(context.IsElement(result));
   ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
@@ -79,7 +80,7 @@ void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsT
   EXPECT_NE(resultLinkContent, "");
 
   // Check if the result is correct
-  ScAddr stringTemplateExpectedResult = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, context.HelperResolveSystemIdtf("rrel_expected_result"));
+  ScAddr stringTemplateExpectedResult = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, context.ResolveElementSystemIdentifier("rrel_expected_result"));
   std::string stringTemplateExpectedResultContent;
   context.GetLinkContent(stringTemplateExpectedResult, stringTemplateExpectedResultContent);
   EXPECT_EQ(stringTemplateExpectedResultContent, resultLinkContent);

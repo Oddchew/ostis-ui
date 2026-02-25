@@ -6,51 +6,37 @@
 
 #pragma once
 
+#include <sc-memory/sc_keynodes.hpp>
+
 #include "sc-memory/sc_addr.hpp"
 #include "sc-memory/sc_object.hpp"
 
-#include "generated/HTMLTranslatorKeynodes.generated.hpp"
-
 namespace htmlTranslationModule
 {
-class HTMLTranslatorKeynodes : public ScObject
+class HTMLTranslatorKeynodes : public ScKeynodes
 {
-  SC_CLASS()
-  SC_GENERATED_BODY()
+  public:
+  static inline ScKeynode const action_translate_sc_node_to_html{"action_translate_sc_node_to_html"};
 
-public:
-  SC_PROPERTY(Keynode("action_translate_sc_node_to_html"), ForceCreate)
-  static ScAddr action_translate_sc_node_to_html;
+  static inline ScKeynode const nrel_decomposition{"nrel_decomposition", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_decomposition"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_decomposition;
+  static inline ScKeynode const concept_user_interface_component{"concept_user_interface_component", ScType::ConstNodeClass};
 
-  SC_PROPERTY(Keynode("concept_user_interface_component"), ForceCreate(ScType::NodeConstClass))
-  static ScAddr concept_user_interface_component;
+  static inline ScKeynode const nrel_html_template{"nrel_html_template", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_html_template"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_html_template;
+  static inline ScKeynode const nrel_html_representation{"nrel_html_representation", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_html_representation"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_html_representation;
+  static inline ScKeynode const nrel_mimetype{"nrel_mimetype", ScType::ConstNodeNonRole};
 
-  SC_PROPERTY(Keynode("nrel_mimetype"), ForceCreate(ScType::NodeConstNoRole))
-  static ScAddr nrel_mimetype;
+  static inline ScKeynode const action_evaluate_specified_string_template{"action_evaluate_specified_string_template"};
 
-  SC_PROPERTY(Keynode("action_evaluate_specified_string_template"), ForceCreate)
-  static ScAddr action_evaluate_specified_string_template;
+  static inline ScKeynode const format_html{"format_html", ScType::ConstNodeClass};
 
-  SC_PROPERTY(Keynode("format_html"), ForceCreate(ScType::NodeConstClass))
-  static ScAddr format_html;
+  static inline ScKeynode const servable_content{"servable_content", ScType::ConstNodeClass};
 
-  SC_PROPERTY(Keynode("servable_content"), ForceCreate(ScType::NodeConstClass))
-  static ScAddr servable_content;
+  static inline ScKeynode const nrel_format{"nrel_format", ScType::ConstNodeClass};
 
-  SC_PROPERTY(Keynode("nrel_format"), ForceCreate(ScType::NodeConstClass))
-  static ScAddr nrel_format;
-
-  SC_PROPERTY(Keynode("ostis_ui_current_ui_model"), ForceCreate(ScType::NodeConst))
-  static ScAddr ostis_ui_current_ui_model;
+  static inline ScKeynode const ostis_ui_current_ui_model{"ostis_ui_current_ui_model", ScType::ConstNode};
 };
 
 }  // namespace htmlTranslationModule

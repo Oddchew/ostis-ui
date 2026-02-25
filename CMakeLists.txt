@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24.0)
 cmake_policy(SET CMP0048 NEW)
-project(ostis-ui VERSION 0.1.0)
+project(ostis-ui LANGUAGES CXX VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -15,7 +15,7 @@ FetchContent_Declare(
 # {{{ Include sc-machine
 # TODO: dynamic configuration for sc-machine path based on the ostis-web-platform's variable
 set(SC_MACHINE_PATH "${CMAKE_CURRENT_LIST_DIR}/sc-machine")
-include("${SC_MACHINE_PATH}/CMakeLists.txt")
+#include("${SC_MACHINE_PATH}/CMakeLists.txt")
 # }}} Include sc-machine
 
 # configure tests {{{
@@ -34,10 +34,11 @@ endif()
 add_definitions(-DPROJECT_REPO_PATH_PATH="${CMAKE_CURRENT_LIST_DIR}/repo.path")
 
 set(HTTPLIB_SRC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/cpp-httplib")
-add_subdirectory(${HTTPLIB_SRC})
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SC_EXTENSIONS_DIRECTORY})
 add_subdirectory(template-agent)
 add_subdirectory(action-interpreter)
 add_subdirectory(model-generators)
 add_subdirectory(translators)
+
+add_subdirectory(thirdparty)

@@ -1,5 +1,4 @@
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
-#include "sc-agents-common/utils/AgentUtils.hpp"
 #include "sc-agents-common/utils/IteratorUtils.hpp"
 #include "sc-memory/sc_memory.hpp"
 #include <HTTPRequestHandler.hpp>
@@ -24,16 +23,16 @@ std::string HTTPRequestHandler::GetFileMimetype(ScMemoryContext *context, ScAddr
   ScTemplate FileFormatHTTPDescription;
   // searching the format first
   FileFormatHTTPDescription.Quintuple(
-      scFile, ScType::EdgeDCommonVar,
-      ScType::NodeVarClass >> FileFormatClassAlias,
-      ScType::EdgeAccessVarPosPerm, HTMLTranslatorKeynodes::nrel_format);
+      scFile, ScType::VarCommonArc,
+      ScType::VarNodeClass >> FileFormatClassAlias,
+      ScType::VarPermPosArc, HTMLTranslatorKeynodes::nrel_format);
   // search for mime-type representation of that format
   FileFormatHTTPDescription.Quintuple(
-      FileFormatClassAlias, ScType::EdgeDCommonVar,
-      ScType::LinkVar >> FileFormatLinkAlias, ScType::EdgeAccessVarPosPerm,
+      FileFormatClassAlias, ScType::VarCommonArc,
+      ScType::VarNodeLink >> FileFormatLinkAlias, ScType::VarPermPosArc,
       HTMLTranslatorKeynodes::nrel_mimetype);
 
-  context->HelperSmartSearchTemplate(
+  context->SearchByTemplateInterruptibly(
       FileFormatHTTPDescription,
       [&FileFormatLinkAlias, &HTTPFormatLink](
           ScTemplateSearchResultItem const &item) -> ScTemplateSearchRequest {
@@ -95,6 +94,7 @@ void HTTPRequestHandler::RetrieveCurrentUIHandler(httplib::Request const & req, 
       }
 
       ScAddr translationResult =
+//todo(codegen-removal): replace AgentUtils:: usage
           utils::AgentUtils::applyActionAndGetResultIfExists(
                 context, HTMLTranslatorKeynodes::action_translate_sc_node_to_html,
               {currentModel}, 1000);
@@ -133,7 +133,7 @@ void HTTPRequestHandler::FileBySystemIdtfRequestHandler(const httplib::Request& 
   }
   const std::string system_idtf = req.path_params.at("system_idtf");
   try {
-      fileAddr = context->HelperResolveSystemIdtf(system_idtf);
+      fileAddr = context->ResolveElementSystemIdentifier(system_idtf);
     } 
   catch (utils::ExceptionInvalidParams &e) {
       res.status = 404;

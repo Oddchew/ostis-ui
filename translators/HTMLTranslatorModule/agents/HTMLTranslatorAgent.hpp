@@ -6,23 +6,18 @@
 
 #pragma once
 
-#include "sc-memory/kpm/sc_agent.hpp"
+#include "sc-memory/sc_agent.hpp"
 
-#include "sc-agents-common/keynodes/coreKeynodes.hpp"
 #include "sc-memory/sc_memory.hpp"
-
-#include "generated/HTMLTranslatorAgent.generated.hpp"
 
 namespace htmlTranslationModule
 {
 
-class HTMLTranslatorAgent : public ScAgent
+class HTMLTranslatorAgent : public ScActionInitiatedAgent
 {
-  SC_CLASS(Agent, Event(scAgentsCommon::CoreKeynodes::question_initiated, ScEvent::Type::AddOutputEdge))
-  SC_GENERATED_BODY()
+public:
+  ScAddr GetActionClass() const override;
 
-private:
-  bool CheckActionClass(ScAddr const & actionNode);
-
+  ScResult DoProgram(ScActionInitiatedEvent const & event, ScAction & action) override;
 };
 }  // namespace htmlTranslationModule

@@ -7,8 +7,6 @@
 #include "sc_test.hpp"
 #include "scs_loader.hpp"
 
-#include "sc-agents-common/keynodes/coreKeynodes.hpp"
-
 #include "renderer/StringTemplateRenderer.hpp"
 #include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 
@@ -23,18 +21,18 @@ using RendererTest = ScMemoryTest;
 
 void TestRenderer(ScMemoryContext & context, std::string const & scsTestFile)
 {
-  scAgentsCommon::CoreKeynodes::InitGlobal();
+  ScKeynodes::InitGlobal();
   SpecifiedStringTemplateKeynodes::InitGlobal();
   ScsLoader loader;
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFile);
 
-  ScAddr string_template = context.HelperFindBySystemIdtf("string_template");
-  ScAddr replacement_values = context.HelperFindBySystemIdtf("replacement_values");
-  ScAddr formatHTML = context.HelperFindBySystemIdtf("format_html");
+  ScAddr string_template = context.SearchElementBySystemIdentifier("string_template");
+  ScAddr replacement_values = context.SearchElementBySystemIdentifier("replacement_values");
+  ScAddr formatHTML = context.SearchElementBySystemIdentifier("format_html");
   std::string result = specifiedStringTemplateModule::StringTemplateRenderer::RenderStringTemplate(context, string_template, replacement_values, formatHTML);
 
   std::string expectedResult;
-  ScAddr string_template_expected_result = context.HelperFindBySystemIdtf("string_template_expected_result");
+  ScAddr string_template_expected_result = context.SearchElementBySystemIdentifier("string_template_expected_result");
   context.GetLinkContent(string_template_expected_result, expectedResult);
 
   EXPECT_EQ(result, expectedResult);

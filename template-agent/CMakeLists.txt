@@ -10,7 +10,6 @@ find_package(nlohmann_json 3.2.0 REQUIRED)
 
 set(SPECIFIED_TEMPLATE_AGENT_SOURCES
 "agent/SpecifiedStringTemplateAgent.cpp"
-"keynodes/SpecifiedStringTemplateKeynodes.cpp"
 "renderer/StringTemplateRenderer.cpp"
 "SpecifiedStringTemplateModule.cpp"
 )
@@ -32,8 +31,6 @@ target_include_directories(
     PUBLIC ${SC_MEMORY_SRC} ${SC_KPM_SRC} ${inja_SOURCE_DIR}/single_include/inja)
 
 target_link_libraries(ostis-specified-template-agent PUBLIC sc-memory sc-agents-common nlohmann_json::nlohmann_json)
-
-sc_codegen_ex(ostis-specified-template-agent ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/generated)
 
 if(${OSTIS_UI_BUILD_TESTS})
     add_subdirectory(tests)

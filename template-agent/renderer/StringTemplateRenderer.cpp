@@ -8,23 +8,26 @@
 
 #include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 
-#include "sc-agents-common/keynodes/coreKeynodes.hpp"
 #include "sc-agents-common/utils/CommonUtils.hpp"
 #include "sc-agents-common/utils/IteratorUtils.hpp"
-#include "sc-agents-common/utils/AgentUtils.hpp"
 #include "sc-memory/sc_debug.hpp"
 #include "sc-memory/sc_type.hpp"
 #include "sc-search/search_keynodes.h"
 
 #include <inja.hpp>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 using namespace utils;
 
 namespace specifiedStringTemplateModule
 {
 
-std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & context, ScAddr const & stringTemplateLink, ScAddr const & stringTemplateLinkReplacements, ScAddr const & stringFormatAddr)
+std::string StringTemplateRenderer::RenderStringTemplate(
+    ScMemoryContext & context,
+    ScAddr const & stringTemplateLink,
+    ScAddr const & stringTemplateLinkReplacements,
+    ScAddr const & stringFormatAddr)
 {
   // Get string template sc-link content
   std::string templateString;
@@ -36,7 +39,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
   }
 
   ScAddr const variablesSetAddr = IteratorUtils::getAnyByOutRelation(
-        &context, stringTemplateLink, SpecifiedStringTemplateKeynodes::nrel_variable_template);
+      &context, stringTemplateLink, SpecifiedStringTemplateKeynodes::nrel_variable_template);
 
   // If link has no variables, return it. Nothing to render
   if (!context.IsElement(variablesSetAddr))
@@ -50,44 +53,55 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
   ScAddr variableAddr;
   std::string variableContent;
   ScAddr templateAddr;
-  ScAddrVector const variableTemplatesVector = IteratorUtils::getAllWithType(&context, variablesSetAddr, ScType::NodeConst);
+  ScAddrVector const variableTemplatesVector =
+      IteratorUtils::getAllWithType(&context, variablesSetAddr, ScType::ConstNode);
   // Iterate over all the specified in sc-link string variables
   for (ScAddr const & variableTemplateNode : variableTemplatesVector)
   {
-    variableAddr = IteratorUtils::getAnyByOutRelation(&context, variableTemplateNode, SpecifiedStringTemplateKeynodes::rrel_variable);
-    templateAddr = IteratorUtils::getAnyByOutRelation(&context, variableTemplateNode, SpecifiedStringTemplateKeynodes::rrel_template);
+    variableAddr = IteratorUtils::getAnyByOutRelation(
+        &context, variableTemplateNode, SpecifiedStringTemplateKeynodes::rrel_variable);
+    templateAddr = IteratorUtils::getAnyByOutRelation(
+        &context, variableTemplateNode, SpecifiedStringTemplateKeynodes::rrel_template);
 
     // Get variable and corresponding template to find variable value
     if (!context.IsElement(variableAddr) || !context.IsElement(templateAddr))
     {
-      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: string template variables are specified incorrectly.");
+      SC_THROW_EXCEPTION(
+          utils::ExceptionItemNotFound, "StringTemplateRenderer: string template variables are specified incorrectly.");
     }
     context.GetLinkContent(variableAddr, variableContent);
     SC_LOG_DEBUG("StringTemplateRenderer: found variable " << variableContent);
 
-    ScAddr const keyScElement = IteratorUtils::getAnyByOutRelation(&context, templateAddr, scAgentsCommon::CoreKeynodes::rrel_key_sc_element);
+    ScAddr const keyScElement =
+        IteratorUtils::getAnyByOutRelation(&context, templateAddr, ScKeynodes::rrel_key_sc_element);
     if (!context.IsElement(keyScElement))
     {
-      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: string template key sc element is specified incorrectly.");
+      SC_THROW_EXCEPTION(
+          utils::ExceptionItemNotFound,
+          "StringTemplateRenderer: string template key sc element is specified incorrectly.");
     }
 
     ScAddr keyScElementValue;
     ScTemplate scTemplate;
     ScTemplateParams params;
-    // Fill ScTemplateParams if valid replacements are passed as a parameter (e.g. real user interface component to pass in sc-template)
+    // Fill ScTemplateParams if valid replacements are passed as a parameter (e.g. real user interface component to pass
+    // in sc-template)
     if (context.IsElement(stringTemplateLinkReplacements))
     {
       params = GetScTemplateParamsFromTemplateReplacements(context, templateAddr, stringTemplateLinkReplacements);
     }
 
     // Build template from knowledge base address and search by it
-    context.HelperBuildTemplate(scTemplate, templateAddr, params);
+    // todo(codegen-removal): method has signature changed
+    context.BuildTemplate(scTemplate, templateAddr, params);
     // We need only one result to find
-    context.HelperSmartSearchTemplate(scTemplate, [&keyScElement, &keyScElementValue](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
-    {
-      item.Get(keyScElement, keyScElementValue);
-      return ScTemplateSearchRequest::STOP;
-    });
+    context.SearchByTemplateInterruptibly(
+        scTemplate,
+        [&keyScElement, &keyScElementValue](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
+        {
+          item.Get(keyScElement, keyScElementValue);
+          return ScTemplateSearchRequest::STOP;
+        });
 
     if (!context.IsElement(keyScElementValue))
     {
@@ -96,51 +110,59 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
     }
     ScType keyScElementValueType = context.GetElementType(keyScElementValue);
 
-    if (keyScElementValueType == ScType::LinkConst) 
+    if (keyScElementValueType == ScType::ConstNodeLink)
     {
       std::string keyScElementValueContent;
       context.GetLinkContent(keyScElementValue, keyScElementValueContent);
 
-    // Fill json to replace variables with their values in the string template
-    variableTemplateValues[variableContent] = keyScElementValueContent;
-    SC_LOG_DEBUG("StringTemplateRenderer: add mapping " << variableContent << ": " << keyScElementValueContent);
+      // Fill json to replace variables with their values in the string template
+      variableTemplateValues[variableContent] = keyScElementValueContent;
+      SC_LOG_DEBUG("StringTemplateRenderer: add mapping " << variableContent << ": " << keyScElementValueContent);
     }
     else if (keyScElementValueType.IsNode())
     {
-    ScAddr translateActionClass = IteratorUtils::getAnyByOutRelation(&context, stringFormatAddr, SpecifiedStringTemplateKeynodes::nrel_translation_action);
-    if (!context.IsElement(translateActionClass))
-    {
-      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: can't translate a node to the specified format: action not found.");
-    }
-    SC_LOG_DEBUG("StringTemplateRenderer: found action class for translation to a format: " << context.HelperGetSystemIdtf(translateActionClass));
-    std::stringstream dependentComponentsTranslation;
+      ScAddr translateActionClass = IteratorUtils::getAnyByOutRelation(
+          &context, stringFormatAddr, SpecifiedStringTemplateKeynodes::nrel_translation_action);
+      if (!context.IsElement(translateActionClass))
+      {
+        SC_THROW_EXCEPTION(
+            utils::ExceptionItemNotFound,
+            "StringTemplateRenderer: can't translate a node to the specified format: action not found.");
+      }
+      SC_LOG_DEBUG(
+          "StringTemplateRenderer: found action class for translation to a format: "
+          << context.GetElementSystemIdentifier(translateActionClass));
+      std::stringstream dependentComponentsTranslation;
 
-    // check if it's a set
-      if (keyScElementValueType == ScType::NodeConstTuple) {
+      // check if it's a set
+      if (keyScElementValueType == ScType::ConstNodeTuple)
+      {
         // is it an ordered set?
-        ScAddr currentElement = IteratorUtils::getAnyByOutRelation(&context, keyScElementValue, scAgentsCommon::CoreKeynodes::rrel_1);
+        ScAddr currentElement = IteratorUtils::getAnyByOutRelation(&context, keyScElementValue, ScKeynodes::rrel_1);
         if (context.IsElement(currentElement))
         {
           std::string currentComponentTranslation;
           // oriented set
           while (context.IsElement(currentElement))
           {
-              ScAddr const templateAgentAnswer = AgentUtils::applyActionAndGetResultIfExists(
-                    &context, translateActionClass, {currentElement}, 300);
-              ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
-              context.GetLinkContent(answerLink, currentComponentTranslation);
-              dependentComponentsTranslation << currentComponentTranslation;
+            // todo(codegen-removal): replace AgentUtils:: usage
+            ScAddr const templateAgentAnswer =
+                AgentUtils::applyActionAndGetResultIfExists(&context, translateActionClass, {currentElement}, 300);
+            ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
+            context.GetLinkContent(answerLink, currentComponentTranslation);
+            dependentComponentsTranslation << currentComponentTranslation;
             currentElement = IteratorUtils::getNextFromSet(&context, keyScElementValue, currentElement);
           }
         }
         else
         {
-          ScAddrVector components = IteratorUtils::getAllWithType(&context, keyScElementValue, ScType::NodeConst);
+          ScAddrVector components = IteratorUtils::getAllWithType(&context, keyScElementValue, ScType::ConstNode);
           std::string currentComponentTranslation;
           for (ScAddr const & component : components)
           {
-            ScAddr const templateAgentAnswer = AgentUtils::applyActionAndGetResultIfExists(
-                  &context, translateActionClass, {component}, 300);
+            // todo(codegen-removal): replace AgentUtils:: usage
+            ScAddr const templateAgentAnswer =
+                AgentUtils::applyActionAndGetResultIfExists(&context, translateActionClass, {component}, 300);
             ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
             context.GetLinkContent(answerLink, currentComponentTranslation);
             dependentComponentsTranslation << currentComponentTranslation;
@@ -149,19 +171,22 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
         variableTemplateValues[variableContent] = dependentComponentsTranslation.str();
       }
       // not a set
-      else {
+      else
+      {
         std::string currentComponentTranslation;
-        ScAddr const templateAgentAnswer = AgentUtils::applyActionAndGetResultIfExists(
-                    &context, translateActionClass, {keyScElementValue}, 300);
-              ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
-              context.GetLinkContent(answerLink, currentComponentTranslation);
-              dependentComponentsTranslation << currentComponentTranslation;
+        // todo(codegen-removal): replace AgentUtils:: usage
+        ScAddr const templateAgentAnswer =
+            AgentUtils::applyActionAndGetResultIfExists(&context, translateActionClass, {keyScElementValue}, 300);
+        ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
+        context.GetLinkContent(answerLink, currentComponentTranslation);
+        dependentComponentsTranslation << currentComponentTranslation;
       }
     }
-    else 
+    else
     {
-      SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: template found a key element of an unsupported type.");
-   }
+      SC_THROW_EXCEPTION(
+          utils::ExceptionItemNotFound, "StringTemplateRenderer: template found a key element of an unsupported type.");
+    }
   }
 
   // Replace variables with their values in the string template
@@ -170,18 +195,25 @@ std::string StringTemplateRenderer::RenderStringTemplate(ScMemoryContext & conte
   return result;
 }
 
-ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacements(ScMemoryContext & context, ScAddr const & templateAddr, ScAddr const & stringTemplateLinkReplacements)
+ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacements(
+    ScMemoryContext & context,
+    ScAddr const & templateAddr,
+    ScAddr const & stringTemplateLinkReplacements)
 {
-  ScAddr const templateReplacementsSet = IteratorUtils::getAnyByOutRelation(&context, templateAddr, SpecifiedStringTemplateKeynodes::nrel_replacements_variables);
+  ScAddr const templateReplacementsSet = IteratorUtils::getAnyByOutRelation(
+      &context, templateAddr, SpecifiedStringTemplateKeynodes::nrel_replacements_variables);
 
   if (!context.IsElement(templateReplacementsSet))
   {
-    SC_THROW_EXCEPTION(utils::ExceptionItemNotFound, "StringTemplateRenderer: template has no nrel_replacements_variables.");
+    SC_THROW_EXCEPTION(
+        utils::ExceptionItemNotFound, "StringTemplateRenderer: template has no nrel_replacements_variables.");
   }
 
   ScTemplateParams params;
-  ScAddr replacementVariable = IteratorUtils::getAnyByOutRelation(&context, templateReplacementsSet, scAgentsCommon::CoreKeynodes::rrel_1);
-  ScAddr replacementValue = IteratorUtils::getAnyByOutRelation(&context, stringTemplateLinkReplacements, scAgentsCommon::CoreKeynodes::rrel_1);
+  ScAddr replacementVariable =
+      IteratorUtils::getAnyByOutRelation(&context, templateReplacementsSet, ScKeynodes::rrel_1);
+  ScAddr replacementValue =
+      IteratorUtils::getAnyByOutRelation(&context, stringTemplateLinkReplacements, ScKeynodes::rrel_1);
   while (context.IsElement(replacementVariable) && context.IsElement(replacementValue))
   {
     params.Add(replacementVariable, replacementValue);
@@ -192,4 +224,4 @@ ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacem
   return params;
 }
 
-} // namespace specifiedStringTemplateModule
+}  // namespace specifiedStringTemplateModule

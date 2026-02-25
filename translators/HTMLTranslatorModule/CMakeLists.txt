@@ -1,6 +1,5 @@
 set(HTML_TRANSLATOR_SOURCES
 	"HTMLTranslatorModule.cpp"
-	"keynodes/HTMLTranslatorKeynodes.cpp"
 	"agents/HTMLTranslatorAgent.cpp"
     "html-translator/HTMLTranslator.cpp"
     "HTTPServer.cpp"
@@ -26,8 +25,6 @@ target_include_directories(
         PUBLIC ${SC_MEMORY_SRC} ${SC_KPM_SRC})
 
 target_link_libraries(ostis-ui-html-translator PUBLIC sc-memory sc-agents-common PRIVATE httplib)
-
-sc_codegen_ex(ostis-ui-html-translator ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/generated)
 
 if (${OSTIS_UI_BUILD_TESTS})
     add_subdirectory(tests)
