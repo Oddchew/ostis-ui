@@ -1,75 +1,53 @@
-# ostis-ui
+## Installation & Build
 
-This module is part of the ostis-ps-lib and is responsible for interpreting interface sc-models within the OSTIS.
+### ostis-ui
 
-## Using module as an Extension for sc-machine
+#### 1. Setup venv and conan
 
-The ostis-ui can be used as an extension to the sc-machine. Follow these steps to integrate it:
+The project uses Conan to manage dependencies. 
+Create venv, activate it and install conan.
 
-### 1. Download sc-machine Artifacts
-
-   - Download pre-built artifacts of sc-machine from [GitHub Releases](https://github.com/ostis-ai/sc-machine/releases) and extract them to a location of your choice.
-   - Alternatively, you can build sc-machine from sources and use the resulting artifacts.
-   - For more details on installing and using sc-machine artifacts, refer to the [sc-machine quick start guide](https://ostis-ai.github.io/sc-machine/quick_start/).
-  
-
-### 3. Specify Extension Paths
-
-   - When running the sc-machine binary, specify the path to the `lib/extensions` directory from the ostis-ui folder:
-
-   ```sh
-   ./path/to/sc-machine/binary -s path/to/kb.bin \
-       -e "path/to/sc-machine/lib/extensions;path/to/extracted/ostis-ui/lib/extensions"
-   ```
-
-   Replace `path/to/sc-machine/binary` with the path to the sc-machine binary, `path/to/kb.bin` with the path to your knowledge base directory, `path/to/ostis-ui/lib/extensions` with the path to extensions of ostis-ui and `path/to/sc-machine/lib/extensions` with the path to extensions of the sc-machine.
-
-   To get extensions of ostis-ui, build it.
-
-## Developing Module
-
-### Installation Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- CMake (version 3.24 or higher);
-- C++ Compiler with C++17 support;
-- Conan package manager;
-- ccache (for faster rebuilds).
-
-!!! Note
-    This project is not supported on Windows OS.
-
-### Installation & Build
-
-#### 1. Clone Repository
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip3 install conan
+```
+#### 2. Clone Repository
 
 First, clone the repository containing the ostis-ui:
 
 ```bash
-git clone https://github.com/ostis-ai/ostis-ui.git
+git@github.com:Glentas/ostis-ui.git
+cd ostis-ui
+git checkout demo
 ```
 
-#### 2. Install Dependencies with Conan
+#### 3. Install Dependencies with Conan
 
-The project uses Conan to manage dependencies. Choose build mode and install the required dependencies:
+Conan stuff can be found in ```/home/<your_pc_name>/.conan2/```.
 
-- Debug:
+Sc-machine files can be found in: 
+```/home/<your_pc_name>/.conan2/p/sc-<something-something>/es/```.
 
 ```bash
-conan install . -s build_type=Debug --build=missing
+conan profile detect
+conan remote add ostis-ai https://conan.ostis.net/artifactory/api/conan/ostis-ai-library
 ```
 
-- Release
-
+You must install **both** dependencies:
 ```bash
 conan install . -s build_type=Release --build=missing
 ```
 
-#### 3. Configure Project
+```bash
+conan install . -s build_type=Debug --build=missing
+```
+#### 4. Configure Project
 
-You can configure the project using CMake presets. There are three main configuration options:
+You can configure the project using CMake presets. 
 
+
+After you installed all dependencies there are three main configuration options:
 - Debug with tests:
   
   ```sh
@@ -88,7 +66,7 @@ You can configure the project using CMake presets. There are three main configur
   cmake --preset release-with-tests-conan
   ```
 
-#### 4. Build Project
+#### 5. Build Project
 
 After configuring, you can build the project:
 
@@ -104,29 +82,29 @@ For release build:
 cmake --build --preset release
 ```
 
-#### 5. Run Tests
+### sc-machine
 
-If you've configured the project with tests, you can run them using CTest:
+#### 1. Download and extract
 
-```sh
-cd build/<Debug|Release>
-ctest -V
+Download [GitHub Releases](https://github.com/ostis-ai/sc-machine/releases) and extract them to a location of your choice.
+
+#### 2. Build KB
+
+Go to ```/path/to/extracted/machine/sc-machine-0.10.5-Linux/bin/```.
+
+Build KB:
+
+```bash
+./sc-builder --input /path/to/folder/with/kb/files/ --output /path/to/kb.bin --clear
 ```
 
-### Configuration Options
+- ```/path/to/folder/with/kb/files/``` - folder that contains your gwf's and scs's.
+- ```/path/to/kb.bin``` - location where KB will be saved. You may change it's name: kb1.bin, my_kb.bin, etc.
 
-The following options can be set when configuring the project:
+#### 3. Start sc-machine
 
-- `SC_BUILD_TESTS`: Set to ON to build unit tests (default is OFF).
-- `SC_CLANG_FORMAT_CODE`: Set to ON to add clang-format targets (default is OFF).
-- `AUTO_CCACHE`: Set to ON to use ccache for faster rebuilds (default is ON).
-
-Example of setting an option:
-
-```sh
-cmake --preset release-with-tests-conan -DSC_CLANG_FORMAT_CODE=ON <other_options>
+```bash
+./sc-machine -s /path/to/kb.bin -e /path/to/ui_libs/build/Release/lib/
 ```
 
-## Troubleshooting
-
-For any issues or questions about using this package, please refer to the project's GitHub repository or contact the OSTIS-AI team.
+- ```/path/to/ui_libs/build/Release/lib/``` - location with dynamic ostis-ui libs. Their names are ```libostis-specified-template-agent.so``` and ```libostis-ui-html-translator.so```.
