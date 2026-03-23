@@ -17,7 +17,7 @@ pip3 install conan
 First, clone the repository containing the ostis-ui:
 
 ```bash
-git@github.com:Glentas/ostis-ui.git
+git clone git@github.com:Glentas/ostis-ui.git
 cd ostis-ui
 git checkout demo
 ```
