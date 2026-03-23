@@ -1,5 +1,6 @@
-#include "sc-memory/sc_memory.hpp"
-#include "sc-memory/sc_type.hpp"
+#include <sc-memory/sc_memory.hpp>
+#include <sc-memory/sc_type.hpp>
+
 #include <httplib.h>
 #include <string>
 

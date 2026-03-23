@@ -4,73 +4,47 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
-#include "sc_test.hpp"
-#include "sc_repo_path_collector.hpp"
-#include "scs_loader.hpp"
+#include <sc-memory/test/sc_test.hpp>
+#include <sc-builder/scs_loader.hpp>
 
-#include "sc-agents-common/utils/IteratorUtils.hpp"
-#include "sc-memory/kpm/sc_agent.hpp"
+#include <sc-memory/sc_agent.hpp>
+#include <sc-agents-common/utils/IteratorUtils.hpp>
 
-#include "keynodes/HTMLTranslatorKeynodes.hpp"
 #include "agents/HTMLTranslatorAgent.hpp"
+#include "keynodes/HTMLTranslatorKeynodes.hpp"
+
 #include "agent/SpecifiedStringTemplateAgent.hpp"
 #include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
+
+#include "utils.hpp"
 
 using namespace specifiedStringTemplateModule;
 using namespace htmlTranslationModule;
 namespace htmlTranslatorAgentTest
 {
 ScsLoader loader;
-std::string const TEST_FILES_DIR_PATH = HTML_TRANSLATION_AGENT_TEST_SRC_PATH "/test-structures/";
-std::string const PROJECT_REPO_PATH = PROJECT_REPO_PATH_PATH;
+std::string const TEST_FILES_DIR_PATH = "../test-structures/";
+std::string const TEST_KB_DIR_PATH = "../test-structures/kb";
 size_t const WAIT_TIME = 1000;
 using HTMLTranslatorAgentTest = ScMemoryTest;
 
-void InitializeTest()
+void TestHTMLTranslatorAgent(ScAgentContext & context, std::string const & scsTestFileName)
 {
-  ScKeynodes::InitGlobal();
-  HTMLTranslatorKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
-
-  ScAgentInit(true);
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<HTMLTranslatorAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_REGISTER(HTMLTranslatorAgent);
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_REGISTER(SpecifiedStringTemplateAgent);
-}
-
-void ShutdownTest()
-{
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<HTMLTranslatorAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_UNREGISTER(HTMLTranslatorAgent);
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
-}
-
-void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsTestFileName)
-{
-  InitializeTest();
-
-  ScRepoPathCollector collector;
-  ScRepoPathCollector::Sources excludeSources;
-  ScRepoPathCollector::Sources checkSources;
-  ScRepoPathCollector::Sources buildSources;
-  collector.ParseRepoPath(PROJECT_REPO_PATH, excludeSources, checkSources);
-  collector.CollectBuildSources("", excludeSources, checkSources, buildSources);
+  context.SubscribeAgent<HTMLTranslatorAgent>();
+  context.SubscribeAgent<SpecifiedStringTemplateAgent>();
+  
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFileName);
-  // load KB sources of the project
-  for (std::string const & source : buildSources)
-  {
-    loader.loadScsFile(context, source);
-  }
+  loadKB(context, loader, TEST_KB_DIR_PATH);
 
   // Call the agent, get and validate result
   ScAddr actionNode = context.SearchElementBySystemIdentifier("test_action_node");
   EXPECT_TRUE(context.IsElement(actionNode));
   ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, ScKeynodes::rrel_1);
   EXPECT_TRUE(context.IsElement(rootUiElement));
-//todo(codegen-removal): replace AgentUtils:: usage
-  ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, HTMLTranslatorKeynodes::action_translate_sc_node_to_html, {rootUiElement}, WAIT_TIME);
+  ScAction action = context.GenerateAction(HTMLTranslatorKeynodes::action_translate_sc_node_to_html);
+  action.SetArguments(rootUiElement);
+  action.InitiateAndWait();
+  ScStructure result = action.GetResult();
   EXPECT_TRUE(context.IsElement(result));
   ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
   EXPECT_TRUE(context.IsElement(resultLink));
@@ -85,7 +59,8 @@ void TestHTMLTranslatorAgent(ScMemoryContext & context, std::string const & scsT
   context.GetLinkContent(stringTemplateExpectedResult, stringTemplateExpectedResultContent);
   EXPECT_EQ(stringTemplateExpectedResultContent, resultLinkContent);
 
-  ShutdownTest();
+  context.UnsubscribeAgent<HTMLTranslatorAgent>();
+  context.UnsubscribeAgent<SpecifiedStringTemplateAgent>();
 }
 
 TEST_F(HTMLTranslatorAgentTest, TranslateTextOutput)

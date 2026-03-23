@@ -4,41 +4,26 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
-#include "sc_test.hpp"
-#include "scs_loader.hpp"
+#include <sc-memory/test/sc_test.hpp>
+#include <sc-builder/scs_loader.hpp>
 
-#include "sc-agents-common/utils/IteratorUtils.hpp"
-#include "sc-memory/kpm/sc_agent.hpp"
+#include <sc-memory/sc_agent.hpp>
+#include <sc-agents-common/utils/IteratorUtils.hpp>
 
-#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 #include "agent/SpecifiedStringTemplateAgent.hpp"
+#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 
 using namespace specifiedStringTemplateModule;
 namespace templateAgentTest
 {
-std::string const TEST_FILES_DIR_PATH = TEMPLATE_AGENT_TEST_SRC_PATH "/test-structures/";
+std::string const TEST_FILES_DIR_PATH = "../test-structures/";
 int const WAIT_TIME = 1000;
 using TemplateAgentTest = ScMemoryTest;
 
-void InitializeTest()
-{
-  ScKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
 
-  ScAgentInit(true);
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_REGISTER(SpecifiedStringTemplateAgent);
-}
-
-void ShutdownTest()
+void TestTemplateAgent(ScAgentContext & context, std::string const & scsTestFile)
 {
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
-}
-
-void TestTemplateAgent(ScMemoryContext & context, std::string const & scsTestFile)
-{
-  InitializeTest();
+  context.SubscribeAgent<SpecifiedStringTemplateAgent>();
 
   ScsLoader loader;
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFile);
@@ -46,8 +31,9 @@ void TestTemplateAgent(ScMemoryContext & context, std::string const & scsTestFil
   // Call the agent, get and validate result
   ScAddr test_action_node = context.SearchElementBySystemIdentifier("test_action_node");
   EXPECT_TRUE(context.IsElement(test_action_node));
-//todo(codegen-removal): replace AgentUtils:: usage
-  ScAddr result = utils::AgentUtils::applyActionAndGetResultIfExists(&context, test_action_node, WAIT_TIME);
+  ScAction action = context.ConvertToAction(test_action_node);
+  action.InitiateAndWait();
+  ScStructure result = action.GetResult();
   EXPECT_TRUE(context.IsElement(result));
   ScAddr resultLink = utils::IteratorUtils::getAnyFromSet(&context, result);
   EXPECT_TRUE(context.IsElement(resultLink));
@@ -71,7 +57,7 @@ void TestTemplateAgent(ScMemoryContext & context, std::string const & scsTestFil
         SpecifiedStringTemplateKeynodes::nrel_format);
   EXPECT_TRUE(formatIterator->Next());
 
-  ShutdownTest();
+  context.UnsubscribeAgent<SpecifiedStringTemplateAgent>();
 }
 
 TEST_F(TemplateAgentTest, ZeroVariablesStringTemplate)

@@ -4,25 +4,25 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
-#include "sc_test.hpp"
-#include "scs_loader.hpp"
+#include <sc-memory/test/sc_test.hpp>
+#include <sc-builder/scs_loader.hpp>
+
+#include <sc-memory/sc_agent.hpp>
+#include <sc-agents-common/utils/IteratorUtils.hpp>
 
 #include "renderer/StringTemplateRenderer.hpp"
 #include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
-
 
 using namespace specifiedStringTemplateModule;
 
 namespace rendererTest
 {
-std::string const TEST_FILES_DIR_PATH = TEMPLATE_AGENT_TEST_SRC_PATH "/test-structures/";
+std::string const TEST_FILES_DIR_PATH = "../test-structures/";
 
 using RendererTest = ScMemoryTest;
 
-void TestRenderer(ScMemoryContext & context, std::string const & scsTestFile)
+void TestRenderer(ScAgentContext & context, std::string const & scsTestFile)
 {
-  ScKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
   ScsLoader loader;
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFile);
 

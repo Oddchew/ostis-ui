@@ -8,7 +8,8 @@
 
 #include <string>
 
-#include "sc-memory/sc_memory.hpp"
+#include <sc-memory/sc_memory.hpp>
+#include <sc-memory/sc_agent_context.hpp>
 
 namespace specifiedStringTemplateModule
 {
@@ -16,8 +17,8 @@ namespace specifiedStringTemplateModule
 class StringTemplateRenderer
 {
 public:
-  static std::string RenderStringTemplate(ScMemoryContext & context, ScAddr const & stringTemplateLink, ScAddr const & stringTemplateLinkReplacements, ScAddr const & stringFormatAddr);
-  static ScTemplateParams GetScTemplateParamsFromTemplateReplacements(ScMemoryContext & context, ScAddr const & templateAddr, ScAddr const & stringTemplateLinkReplacements);
+  static std::string RenderStringTemplate(ScAgentContext & context, ScAddr const & stringTemplateLink, ScAddr const & stringTemplateLinkReplacements, ScAddr const & stringFormatAddr);
+  static ScTemplateParams GetScTemplateParamsFromTemplateReplacements(ScAgentContext & context, ScAddr const & templateAddr, ScAddr const & stringTemplateLinkReplacements);
 };
 
 } // namespace specifiedStringTemplateModule

@@ -1,7 +1,9 @@
-#include "sc-memory/sc_memory.hpp"
+#include <sc-memory/sc_memory.hpp>
+
 #include <httplib.h>
 
-namespace htmlTranslationModule {
+namespace htmlTranslationModule
+{
 
 class HTTPRequestHandler
 {

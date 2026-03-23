@@ -4,10 +4,10 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
+#include <sc-agents-common/utils/GenerationUtils.hpp>
+
 #include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 #include "renderer/StringTemplateRenderer.hpp"
-
-#include "sc-agents-common/utils/GenerationUtils.hpp"
 
 #include "SpecifiedStringTemplateAgent.hpp"
 

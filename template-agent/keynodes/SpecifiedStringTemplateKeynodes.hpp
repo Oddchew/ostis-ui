@@ -8,13 +8,6 @@
 
 #include <sc-memory/sc_keynodes.hpp>
 
-#include "sc-memory/sc_addr.hpp"
-#include "sc-memory/sc_object.hpp"
-
-#include "sc-memory/sc_agent.hpp"
-#include "sc-memory/sc_keynodes.hpp"
-#include "sc-memory/sc_memory.hpp"
-
 namespace specifiedStringTemplateModule
 {
 class SpecifiedStringTemplateKeynodes : public ScKeynodes

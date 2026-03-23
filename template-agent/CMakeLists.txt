@@ -1,37 +1,34 @@
-option("BUILD_BENCHMARK" OFF)
-option("INJA_BUILD_TESTS" OFF)
-FetchContent_Declare(
-  inja
-  GIT_REPOSITORY https://github.com/pantor/inja.git
-  GIT_TAG v3.4.0 # You can specify a commit, tag, or branch here
-)
-FetchContent_MakeAvailable(inja)
-find_package(nlohmann_json 3.2.0 REQUIRED)
-
 set(SPECIFIED_TEMPLATE_AGENT_SOURCES
-"agent/SpecifiedStringTemplateAgent.cpp"
-"renderer/StringTemplateRenderer.cpp"
-"SpecifiedStringTemplateModule.cpp"
+    "agent/SpecifiedStringTemplateAgent.cpp"
+    "renderer/StringTemplateRenderer.cpp"
+    "SpecifiedStringTemplateModule.cpp"
 )
-
 set(SPECIFIED_TEMPLATE_AGENT_HEADERS
-"agent/SpecifiedStringTemplateAgent.hpp"
-"keynodes/SpecifiedStringTemplateKeynodes.hpp"
-"renderer/StringTemplateRenderer.hpp"
-"SpecifiedStringTemplateModule.hpp"
+    "agent/SpecifiedStringTemplateAgent.hpp"
+    "keynodes/SpecifiedStringTemplateKeynodes.hpp"
+    "renderer/StringTemplateRenderer.hpp"
+    "SpecifiedStringTemplateModule.hpp"
 )
 
 add_library( 
     ostis-specified-template-agent 
-    SHARED ${SPECIFIED_TEMPLATE_AGENT_SOURCES} ${SPECIFIED_TEMPLATE_AGENT_HEADERS})
+    SHARED ${SPECIFIED_TEMPLATE_AGENT_SOURCES} ${SPECIFIED_TEMPLATE_AGENT_HEADERS}
+)
 
-target_include_directories(
-    ostis-specified-template-agent
+target_include_directories(ostis-specified-template-agent
     PUBLIC ${CMAKE_CURRENT_LIST_DIR}
-    PUBLIC ${SC_MEMORY_SRC} ${SC_KPM_SRC} ${inja_SOURCE_DIR}/single_include/inja)
+)
 
-target_link_libraries(ostis-specified-template-agent PUBLIC sc-memory sc-agents-common nlohmann_json::nlohmann_json)
+find_package(nlohmann_json 3.2.0 REQUIRED)
+find_package(inja REQUIRED)
 
-if(${OSTIS_UI_BUILD_TESTS})
+target_link_libraries(ostis-specified-template-agent
+    LINK_PUBLIC sc-machine::sc-memory
+    LINK_PUBLIC sc-machine::sc-agents-common
+    LINK_PRIVATE nlohmann_json::nlohmann_json
+    LINK_PRIVATE pantor::inja
+)
+
+if(${SC_BUILD_TESTS})
     add_subdirectory(tests)
 endif()

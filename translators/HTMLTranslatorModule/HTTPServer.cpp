@@ -1,8 +1,9 @@
-#include <httplib.h>
-#include <HTTPServer.hpp>
 #include <string>
-#include <HTTPRequestHandler.hpp>
 
+#include <httplib.h>
+
+#include <HTTPServer.hpp>
+#include <HTTPRequestHandler.hpp>
 
 namespace htmlTranslationModule
 {

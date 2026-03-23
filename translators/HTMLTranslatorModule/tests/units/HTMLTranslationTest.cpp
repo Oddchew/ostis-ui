@@ -4,22 +4,21 @@
  * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
  */
 
-#include "sc-agents-common/utils/IteratorUtils.hpp"
-#include "sc-memory/utils/sc_log.hpp"
-#include "sc-search/search_keynodes.h"
-#include "scs_loader.hpp"
-#include "sc_repo_path_collector.hpp"
-#include "sc_test.hpp"
+#include <sc-memory/test/sc_test.hpp>
+#include <sc-builder/scs_loader.hpp>
 
-#include "sc-memory/kpm/sc_agent.hpp"
-
-#include "keynodes/HTMLTranslatorKeynodes.hpp"
-#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
+#include <sc-memory/sc_agent.hpp>
+#include <sc-agents-common/utils/IteratorUtils.hpp>
 
 #include "agents/HTMLTranslatorAgent.hpp"
+#include "keynodes/HTMLTranslatorKeynodes.hpp"
+
 #include "agent/SpecifiedStringTemplateAgent.hpp"
+#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 
 #include "html-translator/HTMLTranslator.hpp"
+
+#include "utils.hpp"
 
 using namespace specifiedStringTemplateModule;
 using namespace htmlTranslationModule;
@@ -27,47 +26,18 @@ using namespace htmlTranslationModule;
 namespace htmlTranslatorTest
 {
 ScsLoader loader;
-std::string const TEST_FILES_DIR_PATH = HTML_TRANSLATION_AGENT_TEST_SRC_PATH "/test-structures/";
-std::string const PROJECT_REPO_PATH = PROJECT_REPO_PATH_PATH;
+std::string const TEST_FILES_DIR_PATH = "../test-structures/";
+std::string const TEST_KB_DIR_PATH = "../test-structures/kb";
 
 using HTMLTranslatorTest = ScMemoryTest;
 
-void InitializeTest()
+void TestHTMLTranslator(ScAgentContext & context, std::string const & scsTestFileName)
 {
-  ScKeynodes::InitGlobal();
-  HTMLTranslatorKeynodes::InitGlobal();
-  SpecifiedStringTemplateKeynodes::InitGlobal();
+  context.SubscribeAgent<HTMLTranslatorAgent>();
+  context.SubscribeAgent<SpecifiedStringTemplateAgent>();
 
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<HTMLTranslatorAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_REGISTER(HTMLTranslatorAgent);
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_REGISTER(SpecifiedStringTemplateAgent);
-}
-
-void ShutdownTest()
-{
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<HTMLTranslatorAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_UNREGISTER(HTMLTranslatorAgent);
-  //todo(codegen-removal): Use agentContext.SubscribeAgent<SpecifiedStringTemplateAgent> or UnsubscribeAgent; to register and unregister agent
-SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
-}
-
-void TestHTMLTranslator(ScMemoryContext & context, std::string const & scsTestFileName)
-{
-  InitializeTest();
-
-  ScRepoPathCollector collector;
-  ScRepoPathCollector::Sources excludeSources;
-  ScRepoPathCollector::Sources checkSources;
-  ScRepoPathCollector::Sources buildSources;
-  collector.ParseRepoPath(PROJECT_REPO_PATH, excludeSources, checkSources);
-  collector.CollectBuildSources("", excludeSources, checkSources, buildSources);
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFileName);
-  // load KB sources of the project
-  for (auto const & source : buildSources) 
-  {
-    loader.loadScsFile(context, source);
-  }  
+  loadKB(context, loader, TEST_KB_DIR_PATH);
 
   ScAddr actionNode = context.SearchElementBySystemIdentifier("test_action_node");
   ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, ScKeynodes::rrel_1);
@@ -84,7 +54,8 @@ void TestHTMLTranslator(ScMemoryContext & context, std::string const & scsTestFi
   context.GetLinkContent(stringTemplateExpectedResult, stringTemplateExpectedResultContent);
   EXPECT_EQ(stringTemplateExpectedResultContent, resultLinkContent);
 
-  ShutdownTest();
+  context.UnsubscribeAgent<HTMLTranslatorAgent>();
+  context.UnsubscribeAgent<SpecifiedStringTemplateAgent>();
 }
 
 TEST_F(HTMLTranslatorTest, TranslateTextOutput)

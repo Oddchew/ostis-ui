@@ -25,10 +25,10 @@ and launch the process of getting the full HTML component tree
 3. Run template evaluation agent for the root of the tree
 */
 
-#include "sc-memory/sc_action.hpp"
-#include "sc-memory/sc_event.hpp"
-#include "sc-memory/sc_result.hpp"
-#include "sc-memory/sc_structure.hpp"
+#include <sc-memory/sc_action.hpp>
+#include <sc-memory/sc_event.hpp>
+#include <sc-memory/sc_result.hpp>
+#include <sc-memory/sc_structure.hpp>
 
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
 #include "html-translator/HTMLTranslator.hpp"

@@ -3,6 +3,8 @@
 #include "sc-memory/sc_memory.hpp"
 #include <HTTPRequestHandler.hpp>
 
+#include <sc-memory/sc_agent.hpp>
+
 namespace htmlTranslationModule
 {
 
@@ -84,7 +86,7 @@ void HTTPRequestHandler::FileRetriever(ScMemoryContext * context, ScAddr & fileA
 void HTTPRequestHandler::RetrieveCurrentUIHandler(httplib::Request const & req, httplib::Response & res)
 {
       // TODO: use user-specific current model
-      ScMemoryContext * context = new ScMemoryContext();
+      ScAgentContext * context = new ScAgentContext();
 
       ScAddr const currentModel = utils::IteratorUtils::getAnyFromSet(context, HTMLTranslatorKeynodes::ostis_ui_current_ui_model);
       if (!context->IsElement(currentModel))
@@ -93,11 +95,10 @@ void HTTPRequestHandler::RetrieveCurrentUIHandler(httplib::Request const & req, 
         return;
       }
 
-      ScAddr translationResult =
-//todo(codegen-removal): replace AgentUtils:: usage
-          utils::AgentUtils::applyActionAndGetResultIfExists(
-                context, HTMLTranslatorKeynodes::action_translate_sc_node_to_html,
-              {currentModel}, 1000);
+      ScAction action = context->GenerateAction(HTMLTranslatorKeynodes::action_translate_sc_node_to_html);
+      action.SetArguments(currentModel);
+      action.InitiateAndWait();
+      ScStructure translationResult = action.GetResult();
       ScAddr translationResultLink = utils::IteratorUtils::getAnyFromSet(context, translationResult);
       if (!context->IsElement(translationResultLink)) {
         res.set_content("Error: translation result is invalid.", "text/html");

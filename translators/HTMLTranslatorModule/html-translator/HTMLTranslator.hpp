@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include "sc-memory/sc_memory.hpp"
+#include <sc-memory/sc_agent.hpp>
+#include <sc-memory/sc_memory.hpp>
 
 namespace htmlTranslationModule
 {
@@ -14,9 +15,9 @@ namespace htmlTranslationModule
 class HTMLTranslator
 {
 public:
-  static ScAddr TranslateScToHTML(ScMemoryContext & context, ScAddr const & rootUiElement);
-  static ScAddr GetUIComponentHTMLTemplate(ScMemoryContext & context, ScAddr const & uiComponent);
-  static ScAddr GetTemplateAgentAnswerLink(ScMemoryContext & context, ScAddr const & uiElement, ScAddr const & uiHTMLTemplateLink);
+  static ScAddr TranslateScToHTML(ScAgentContext & context, ScAddr const & rootUiElement);
+  static ScAddr GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent);
+  static ScAddr GetTemplateAgentAnswerLink(ScAgentContext & context, ScAddr const & uiElement, ScAddr const & uiHTMLTemplateLink);
 };
 
 } // namespace htmlTranslationModule

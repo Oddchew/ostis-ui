@@ -17,7 +17,7 @@ using namespace utils;
 
 namespace htmlTranslationModule
 {
-ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const & rootUiElement)
+ScAddr HTMLTranslator::TranslateScToHTML(ScAgentContext & context, ScAddr const & rootUiElement)
 {
   if (!context.IsElement(rootUiElement))
   {
@@ -51,7 +51,7 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScMemoryContext & context, ScAddr const
   return answerHTMLLink;
 }
 
-ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScMemoryContext & context, ScAddr const & uiComponent)
+ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent)
 {
   ScAddr HTMLTemplateLink;
   std::string const UIComponentClassAlias = "_ui_component_class";
@@ -60,7 +60,7 @@ ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScMemoryContext & context, ScA
   ScTemplate HTMLTemplateTemplate;
   // component class
   HTMLTemplateTemplate.Triple(ScType::VarNodeClass >> UIComponentClassAlias, ScType::VarPermPosArc, uiComponent);
-  // chceck that a component class is a UI component class
+  // check that a component class is a UI component class
   HTMLTemplateTemplate.Quintuple(
       HTMLTranslatorKeynodes::concept_user_interface_component,
       ScType::VarCommonArc,
@@ -88,16 +88,16 @@ ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScMemoryContext & context, ScA
 }
 
 ScAddr HTMLTranslator::GetTemplateAgentAnswerLink(
-    ScMemoryContext & context,
+    ScAgentContext & context,
     ScAddr const & uiElement,
     ScAddr const & uiHTMLTemplateLink)
 {
   ScAddr const replacementConstantsSet = context.GenerateNode(ScType::ConstNode);
   GenerationUtils::generateRelationBetween(&context, replacementConstantsSet, uiElement, ScKeynodes::rrel_1);
-  ScAddrVector const argumentsVector{uiHTMLTemplateLink, replacementConstantsSet, HTMLTranslatorKeynodes::format_html};
-  // todo(codegen-removal): replace AgentUtils:: usage
-  ScAddr const templateAgentAnswer = AgentUtils::applyActionAndGetResultIfExists(
-      &context, HTMLTranslatorKeynodes::action_evaluate_specified_string_template, argumentsVector, 300);
+  ScAction action = context.GenerateAction(HTMLTranslatorKeynodes::action_evaluate_specified_string_template);
+  action.SetArguments(uiHTMLTemplateLink, replacementConstantsSet, HTMLTranslatorKeynodes::format_html);
+  action.InitiateAndWait();
+  ScStructure templateAgentAnswer = action.GetResult();
   return IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
 }
 

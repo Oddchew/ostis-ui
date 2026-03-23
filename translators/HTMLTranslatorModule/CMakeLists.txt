@@ -15,17 +15,32 @@ set(HTML_TRANSLATOR_HEADERS
     "HTTPRequestHandler.hpp"
 )
 
-add_library(
-        ostis-ui-html-translator
-        SHARED ${HTML_TRANSLATOR_SOURCES} ${HTML_TRANSLATOR_HEADERS})
+add_library(ostis-ui-html-translator
+    SHARED ${HTML_TRANSLATOR_SOURCES} ${HTML_TRANSLATOR_HEADERS}
+)
 
-target_include_directories(
-        ostis-ui-html-translator
-        PRIVATE ${CMAKE_CURRENT_LIST_DIR}
-        PUBLIC ${SC_MEMORY_SRC} ${SC_KPM_SRC})
+target_include_directories(ostis-ui-html-translator
+    PUBLIC ${CMAKE_CURRENT_LIST_DIR}
+)
 
-target_link_libraries(ostis-ui-html-translator PUBLIC sc-memory sc-agents-common PRIVATE httplib)
+find_package(httplib REQUIRED)
 
-if (${OSTIS_UI_BUILD_TESTS})
+target_link_libraries(ostis-ui-html-translator
+    LINK_PUBLIC sc-machine::sc-memory
+    LINK_PUBLIC sc-machine::sc-agents-common
+    LINK_PRIVATE httplib::httplib
+)
+
+if(${APPLE})
+    find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
+    find_library(CFNETWORK_FRAMEWORK CFNetwork)
+
+    target_link_libraries(ostis-ui-html-translator
+        LINK_PRIVATE ${COREFOUNDATION_FRAMEWORK}
+        LINK_PRIVATE ${CFNETWORK_FRAMEWORK}
+    )
+endif()
+
+if(${SC_BUILD_TESTS})
     add_subdirectory(tests)
-endif ()
+endif()

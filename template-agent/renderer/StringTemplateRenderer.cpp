@@ -6,17 +6,14 @@
 
 #include "StringTemplateRenderer.hpp"
 
-#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
-
-#include "sc-agents-common/utils/CommonUtils.hpp"
-#include "sc-agents-common/utils/IteratorUtils.hpp"
-#include "sc-memory/sc_debug.hpp"
-#include "sc-memory/sc_type.hpp"
-#include "sc-search/search_keynodes.h"
-
-#include <inja.hpp>
+#include <inja/inja.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+
+#include <sc-agents-common/utils/CommonUtils.hpp>
+#include <sc-agents-common/utils/IteratorUtils.hpp>
+
+#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
 
 using namespace utils;
 
@@ -24,7 +21,7 @@ namespace specifiedStringTemplateModule
 {
 
 std::string StringTemplateRenderer::RenderStringTemplate(
-    ScMemoryContext & context,
+    ScAgentContext & context,
     ScAddr const & stringTemplateLink,
     ScAddr const & stringTemplateLinkReplacements,
     ScAddr const & stringFormatAddr)
@@ -145,9 +142,10 @@ std::string StringTemplateRenderer::RenderStringTemplate(
           // oriented set
           while (context.IsElement(currentElement))
           {
-            // todo(codegen-removal): replace AgentUtils:: usage
-            ScAddr const templateAgentAnswer =
-                AgentUtils::applyActionAndGetResultIfExists(&context, translateActionClass, {currentElement}, 300);
+            ScAction action = context.GenerateAction(translateActionClass);
+            action.SetArguments(currentElement);
+            action.InitiateAndWait();
+            ScStructure templateAgentAnswer = action.GetResult();
             ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
             context.GetLinkContent(answerLink, currentComponentTranslation);
             dependentComponentsTranslation << currentComponentTranslation;
@@ -160,9 +158,10 @@ std::string StringTemplateRenderer::RenderStringTemplate(
           std::string currentComponentTranslation;
           for (ScAddr const & component : components)
           {
-            // todo(codegen-removal): replace AgentUtils:: usage
-            ScAddr const templateAgentAnswer =
-                AgentUtils::applyActionAndGetResultIfExists(&context, translateActionClass, {component}, 300);
+            ScAction action = context.GenerateAction(translateActionClass);
+            action.SetArguments(component);
+            action.InitiateAndWait();
+            ScStructure templateAgentAnswer = action.GetResult();
             ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
             context.GetLinkContent(answerLink, currentComponentTranslation);
             dependentComponentsTranslation << currentComponentTranslation;
@@ -174,9 +173,10 @@ std::string StringTemplateRenderer::RenderStringTemplate(
       else
       {
         std::string currentComponentTranslation;
-        // todo(codegen-removal): replace AgentUtils:: usage
-        ScAddr const templateAgentAnswer =
-            AgentUtils::applyActionAndGetResultIfExists(&context, translateActionClass, {keyScElementValue}, 300);
+        ScAction action = context.GenerateAction(translateActionClass);
+        action.SetArguments(keyScElementValue);
+        action.InitiateAndWait();
+        ScStructure templateAgentAnswer = action.GetResult();
         ScAddr answerLink = IteratorUtils::getAnyFromSet(&context, templateAgentAnswer);
         context.GetLinkContent(answerLink, currentComponentTranslation);
         dependentComponentsTranslation << currentComponentTranslation;
@@ -196,7 +196,7 @@ std::string StringTemplateRenderer::RenderStringTemplate(
 }
 
 ScTemplateParams StringTemplateRenderer::GetScTemplateParamsFromTemplateReplacements(
-    ScMemoryContext & context,
+    ScAgentContext & context,
     ScAddr const & templateAddr,
     ScAddr const & stringTemplateLinkReplacements)
 {
