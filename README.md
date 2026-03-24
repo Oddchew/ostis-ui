@@ -29,12 +29,13 @@ Conan stuff can be found in ```/home/<your_pc_name>/.conan2/```.
 Sc-machine files can be found in: 
 ```/home/<your_pc_name>/.conan2/p/sc-<something-something>/es/```.
 
+Perform all commands below:
+
 ```bash
 conan profile detect
 conan remote add ostis-ai https://conan.ostis.net/artifactory/api/conan/ostis-ai-library
 ```
 
-You must install **both** dependencies:
 ```bash
 conan install . -s build_type=Release --build=missing
 ```
