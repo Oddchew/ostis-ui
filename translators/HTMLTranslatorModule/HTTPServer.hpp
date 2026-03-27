@@ -2,7 +2,6 @@
 #include <sc-memory/sc_type.hpp>
 
 #include <httplib.h>
-#include <string>
 
 namespace htmlTranslationModule
 {

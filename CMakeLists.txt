@@ -32,7 +32,6 @@ endif()
 
 find_package(sc-machine REQUIRED)
 
-add_subdirectory(template-agent)
 add_subdirectory(action-interpreter)
 add_subdirectory(model-generators)
 add_subdirectory(translators)

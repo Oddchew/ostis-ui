@@ -13,14 +13,11 @@
 #include "agents/HTMLTranslatorAgent.hpp"
 #include "keynodes/HTMLTranslatorKeynodes.hpp"
 
-#include "agent/SpecifiedStringTemplateAgent.hpp"
-#include "keynodes/SpecifiedStringTemplateKeynodes.hpp"
-
 #include "html-translator/HTMLTranslator.hpp"
 
 #include "utils.hpp"
 
-using namespace specifiedStringTemplateModule;
+
 using namespace htmlTranslationModule;
 
 namespace htmlTranslatorTest
@@ -34,13 +31,14 @@ using HTMLTranslatorTest = ScMemoryTest;
 void TestHTMLTranslator(ScAgentContext & context, std::string const & scsTestFileName)
 {
   context.SubscribeAgent<HTMLTranslatorAgent>();
-  context.SubscribeAgent<SpecifiedStringTemplateAgent>();
+
 
   loader.loadScsFile(context, TEST_FILES_DIR_PATH + scsTestFileName);
   loadKB(context, loader, TEST_KB_DIR_PATH);
 
   ScAddr actionNode = context.SearchElementBySystemIdentifier("test_action_node");
   ScAddr rootUiElement = utils::IteratorUtils::getAnyByOutRelation(&context, actionNode, ScKeynodes::rrel_1);
+  
   EXPECT_TRUE(context.IsElement(rootUiElement));
   ScAddr resultLink;
   resultLink = HTMLTranslator::TranslateScToHTML(context, rootUiElement);
@@ -55,7 +53,6 @@ void TestHTMLTranslator(ScAgentContext & context, std::string const & scsTestFil
   EXPECT_EQ(stringTemplateExpectedResultContent, resultLinkContent);
 
   context.UnsubscribeAgent<HTMLTranslatorAgent>();
-  context.UnsubscribeAgent<SpecifiedStringTemplateAgent>();
 }
 
 TEST_F(HTMLTranslatorTest, TranslateTextOutput)
