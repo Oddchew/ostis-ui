@@ -9,7 +9,6 @@ add_executable(ostis-ui-html-translator-agent-test ${HTML_TRANSLATOR_AGENT_TEST_
 target_link_libraries(ostis-ui-html-translator-agent-test
     LINK_PRIVATE GTest::gtest_main
     LINK_PRIVATE ostis-ui-html-translator
-    LINK_PRIVATE ostis-specified-template-agent 
     LINK_PRIVATE sc-machine::sc-builder-lib
 )
 
