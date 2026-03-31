@@ -5,30 +5,37 @@
 #include <HTTPRequestHandler.hpp>
 #include <HTTPServer.hpp>
 
-namespace htmlTranslationModule {
-void ServerWrapper::StartServer() {
+namespace htmlTranslationModule
+{
+void ServerWrapper::StartServer()
+{
   // Instantiate the server
   m_isRunning = SC_TRUE;
   m_serverThread = std::thread(&ServerWrapper::Run, this);
 }
 
-void ServerWrapper::Run() {
+void ServerWrapper::Run()
+{
   // Define a handler for the root path
   m_server.Get(
-      "/", [&](const httplib::Request &req, httplib::Response &res) -> void {
+      "/",
+      [&](httplib::Request const & req, httplib::Response & res) -> void
+      {
         HTTPRequestHandler::RetrieveCurrentUIHandler(req, res);
       });
 
   // an endpoint to resolve sc-files using ScAddr
   m_server.Get(
       "/files/by_sc_addr/:addr",
-      [&](const httplib::Request &req, httplib::Response &res) -> void {
+      [&](httplib::Request const & req, httplib::Response & res) -> void
+      {
         HTTPRequestHandler::FileByAddrRequestHandler(req, res);
       });
   // an endpoint to resolve sc-files using system identifier
   m_server.Get(
       "/files/by_system_idtf/:system_idtf",
-      [&](const httplib::Request &req, httplib::Response &res) -> void {
+      [&](httplib::Request const & req, httplib::Response & res) -> void
+      {
         HTTPRequestHandler::FileBySystemIdtfRequestHandler(req, res);
       });
 
@@ -37,7 +44,8 @@ void ServerWrapper::Run() {
   m_server.listen("localhost", 8080);
 }
 
-void ServerWrapper::StopServer() {
+void ServerWrapper::StopServer()
+{
   m_server.stop();
   m_isRunning = SC_FALSE;
   if (m_serverThread.joinable())
@@ -46,4 +54,4 @@ void ServerWrapper::StopServer() {
   SC_LOG_INFO("[ostis-ui] HTTP-server is stopped");
 }
 
-} // namespace htmlTranslationModule
+}  // namespace htmlTranslationModule

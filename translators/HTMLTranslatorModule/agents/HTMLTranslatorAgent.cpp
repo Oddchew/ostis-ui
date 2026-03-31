@@ -39,20 +39,20 @@ variable <name, (sc-template | sc-action) -> nested template -> variable <name,
 
 using namespace utils;
 
-namespace htmlTranslationModule {
-ScResult HTMLTranslatorAgent::DoProgram(ScActionInitiatedEvent const &event,
-                                        ScAction &action) {
-
+namespace htmlTranslationModule
+{
+ScResult HTMLTranslatorAgent::DoProgram(ScActionInitiatedEvent const & event, ScAction & action)
+{
   auto const [rootUiElement] = action.GetArguments<1>();
 
-  if (!rootUiElement.IsValid()) {
+  if (!rootUiElement.IsValid())
+  {
     SC_LOG_ERROR("Given UI element is invalid.");
     return action.FinishUnsuccessfully();
   }
 
   // Returns ScLink with html representation of given UI component
-  ScAddr answerHTMLLink =
-      HTMLTranslator::TranslateScToHTML(m_context, rootUiElement);
+  ScAddr answerHTMLLink = HTMLTranslator::TranslateScToHTML(m_context, rootUiElement);
 
   // Create agent answer and finish agent work
   ScStructure structAddr = m_context.GenerateStructure();
@@ -61,8 +61,9 @@ ScResult HTMLTranslatorAgent::DoProgram(ScActionInitiatedEvent const &event,
   return action.FinishSuccessfully();
 }
 
-ScAddr HTMLTranslatorAgent::GetActionClass() const {
+ScAddr HTMLTranslatorAgent::GetActionClass() const
+{
   return HTMLTranslatorKeynodes::action_translate_sc_to_html;
 }
 
-} // namespace htmlTranslationModule
+}  // namespace htmlTranslationModule

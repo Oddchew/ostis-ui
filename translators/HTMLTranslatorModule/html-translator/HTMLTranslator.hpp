@@ -6,23 +6,31 @@
 
 #pragma once
 
+#include <sc-memory/sc_addr.hpp>
 #include <sc-memory/sc_agent.hpp>
 #include <sc-memory/sc_memory.hpp>
 #include <string>
+#include <utility>
 
-namespace htmlTranslationModule {
+namespace htmlTranslationModule
+{
 
-class HTMLTranslator {
+using ScAddrPair = std::pair<ScAddr, ScAddr>;
+
+class HTMLTranslator
+{
 public:
-  static ScAddr TranslateScToHTML(ScAgentContext &context,
-                                  ScAddr const &rootUiElement);
-  static ScAddr GetUIComponentHTMLTemplate(ScAgentContext &context,
-                                           ScAddr const &uiComponent);
-  static ScAddr GetAnswerLink(ScAgentContext &context, ScAddr const &uiElement,
-                              ScAddr const &uiHTMLTemplateLink);
-  static void InsertParameterValue(std::string &templateString,
-                                   const std::string &parameterName,
-                                   const std::string &parameterValue);
+  static ScAddr TranslateScToHTML(ScAgentContext & context, ScAddr const & rootUiElement);
+  static ScAddrPair GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent);
+  static ScAddr GetAnswerLink(
+      ScAgentContext & context,
+      ScAddr const & uiElement,
+      ScAddr const & componentHTMLTemplateLink,
+      ScAddr const & classHTMLTemplateLink);
+  static void InsertParameterValue(
+      std::string & componentTemplateString,
+      std::string const & parameterName,
+      std::string const & parameterValue);
 };
 
-} // namespace htmlTranslationModule
+}  // namespace htmlTranslationModule

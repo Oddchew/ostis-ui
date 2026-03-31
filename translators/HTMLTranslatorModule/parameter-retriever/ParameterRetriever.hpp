@@ -14,19 +14,23 @@
 
 using namespace utils;
 
-namespace htmlTranslationModule {
+namespace htmlTranslationModule
+{
 
 using StringScAddrMap = std::map<std::string, ScAddr>;
+using StringScAddrSetMap = std::map<std::string, ScAddrSet>;
 
-class ParameterRetriever {
+class ParameterRetriever
+{
 public:
-  static StringScAddrMap
-  GetNestedUIComponents(ScAgentContext &context, ScAddr const &uiComponent,
-                        std::string const &templateString);
+  static StringScAddrMap GetNestedUIComponents(
+      ScAgentContext & context,
+      ScAddr const & uiComponent,
+      std::string const & classTemplateString);
 
-  static StringScAddrMap
-  ExtractParameterClasses(ScAgentContext &context,
-                          std::string const &templateString);
+  static StringScAddrMap ExtractParameterClasses(ScAgentContext & context, std::string const & classTemplateString);
+
+  static std::vector<std::string> ExtractBracketsContent(std::string const & str);
 };
 
-} // namespace htmlTranslationModule
+}  // namespace htmlTranslationModule
