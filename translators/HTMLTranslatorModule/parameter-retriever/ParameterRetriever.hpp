@@ -23,13 +23,9 @@ using StringScAddrSetMap = std::map<std::string, ScAddrSet>;
 class ParameterRetriever
 {
 public:
-  static StringScAddrMap GetNestedUIComponents(
-      ScAgentContext & context,
-      ScAddr const & uiComponent);
+  static StringScAddrMap GetNestedUIComponents(ScAgentContext & context, ScAddr const & uiComponent);
 
-  static StringScAddrMap ExtractParameterClasses(ScAgentContext & context, std::string const & classTemplateString);
-
-  static std::vector<std::string> ExtractBracketsContent(std::string const & str);
+  static ScTemplate GetComponentClassTemplate(ScAgentContext & context, ScAddr const & uiComponent);
 };
 
 }  // namespace htmlTranslationModule

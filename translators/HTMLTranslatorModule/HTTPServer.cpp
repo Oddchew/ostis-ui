@@ -24,21 +24,6 @@ void ServerWrapper::Run()
         HTTPRequestHandler::RetrieveCurrentUIHandler(req, res);
       });
 
-  // an endpoint to resolve sc-files using ScAddr
-  m_server.Get(
-      "/files/by_sc_addr/:addr",
-      [&](httplib::Request const & req, httplib::Response & res) -> void
-      {
-        HTTPRequestHandler::FileByAddrRequestHandler(req, res);
-      });
-  // an endpoint to resolve sc-files using system identifier
-  m_server.Get(
-      "/files/by_system_idtf/:system_idtf",
-      [&](httplib::Request const & req, httplib::Response & res) -> void
-      {
-        HTTPRequestHandler::FileBySystemIdtfRequestHandler(req, res);
-      });
-
   // Start the server
   SC_LOG_INFO("[ostis-ui] HTTP-server is running on port 8080");
   m_server.listen("localhost", 8080);

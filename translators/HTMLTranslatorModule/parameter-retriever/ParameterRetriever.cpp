@@ -10,8 +10,8 @@
 #include <sc-memory/sc_addr.hpp>
 #include <sc-memory/sc_template.hpp>
 #include <sc-memory/sc_type.hpp>
+#include <sc-agents-common/utils/IteratorUtils.hpp>
 #include <string>
-#include <vector>
 
 using namespace utils;
 
@@ -22,56 +22,34 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
 {
   StringScAddrMap nestedComponents;
 
-  ScAddrVector unmappedParameters;
+  ScAddrSet unmappedParameters;
 
-  StringScAddrMap parameterClasses = ExtractParameterClasses(context, uiComponent);
+  ScTemplate scClassTemplate = GetComponentClassTemplate(context, uiComponent);
 
-  for (auto const & [name, node] : parameterClasses)
-  {
-    std::string const parameterAlias = "_parameter_" + name;
-    ScTemplate parameterTemplate;
-    ScAddr parameter;
+  context.SearchByTemplateInterruptibly(
+      scClassTemplate,
+      [&unmappedParameters, &uiComponent](ScTemplateSearchResultItem const & item)
+      {
+        ScAddr someRootComponent;
 
-    //
-    // parameter_class - - - -> parameter
-    //
-    parameterTemplate.Triple(node, ScType::VarPermPosArc, ScType::VarNode >> parameterAlias);
+        
+        return ScTemplateSearchRequest::STOP;
+      });
 
-    //
-    // ui_component = = = = = => parameter
-    //                   ^
-    //                   |
-    //
-    //                   |
-    //
-    //                   |
-    //
-    //           nrel_parameter
-    //
-    parameterTemplate.Quintuple(
-        uiComponent,
-        ScType::VarCommonArc,
-        parameterAlias,
-        ScType::VarPermPosArc,
-        HTMLTranslatorKeynodes::nrel_parameter);
+  // ScTemplateSearchResult foundStructures;
+  // context.SearchByTemplate(scClassTemplate, foundStructures);
 
-    // Search for all parameters
-    context.SearchByTemplate(
-        parameterTemplate,
-        [&parameterAlias, &parameter, &unmappedParameters](ScTemplateSearchResultItem const & item)
-        {
-          item.Get(parameterAlias, parameter);
-          unmappedParameters.push_back(parameter);
-        });
-  }
+  // for (int i = 0; i < foundStructures.Size(); i++)
+  // {
+  //   ScTemplateResultItem const & item = foundStructures[i];
+  //   if (item.Has(uiComponent))
+  //   {
+  //   }
+  // }
 
   // We check here which link with ID corresponds to which component.
   for (auto const & e : unmappedParameters)
   {
-    ScTemplate parameterIDTemplate;
-    std::string const parameterIDLinkAlias = "_parameter_id_link";
-    ScAddr linkWithID;
-
     //
     // parameter = = = = = => _parameter_id_link
     //                ^
@@ -83,127 +61,106 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
     //
     //      nrel_html_parameter_id
     //
-    parameterIDTemplate.Quintuple(
-        e,
-        ScType::VarCommonArc,
-        ScType::VarNodeLink >> parameterIDLinkAlias,
-        ScType::VarPermPosArc,
-        HTMLTranslatorKeynodes::nrel_html_parameter_id);
+    ScAddr linkWithID =
+        utils::IteratorUtils::getAnyByOutRelation(&context, e, HTMLTranslatorKeynodes::nrel_html_parameter_id);
 
-    context.SearchByTemplateInterruptibly(
-        parameterIDTemplate,
-        [&parameterIDLinkAlias, &linkWithID, &unmappedParameters](
-            ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
-        {
-          item.Get(parameterIDLinkAlias, linkWithID);
-          return ScTemplateSearchRequest::STOP;
-        });
+    if (!context.IsElement(linkWithID))
+    {
+      SC_LOG_ERROR("ParameterRetriever: nested component id link is invalid.");
+      throw utils::ScException(
+          utils::ExceptionItemNotFound("ParameterRetriever: nested component id link is invalid.", ""));
+    }
 
-    std::string idLink;
-    context.GetLinkContent(linkWithID, idLink);
-    nestedComponents[idLink] = e;
+    std::string idLinkValue;
+    context.GetLinkContent(linkWithID, idLinkValue);
+    nestedComponents[idLinkValue] = e;
   }
 
   return nestedComponents;
 }
 
-/*!
- * @brief Extracts parameters in brackets and returns corresponding ScNodeClasses.
- * @param classTemplateString String that contains class html template.
- * @return Map of Class name and corresponding sc element.
- *
- * We recieve something like:
- *
- * <!DOCTYPE html>
- * <html lang="en">
- *     <head>
- *         {concept_html_head}
- *     </head>
- *     <body>
- *         {concept_html_body}
- *     </body>
- * </html>
- *
- * Then we need to find class nodes which names are given in a brackets as
- * parameters.
- *
- * In this case these class nodes are: concept_html_head, concept_html_body.
- *
- * concept_html_head, concept_html_body are so called "parameter classes".
- */
-StringScAddrMap ParameterRetriever::ExtractParameterClasses(
-    ScAgentContext & context,
-    std::string const & classTemplateString)
+ScTemplate ParameterRetriever::GetComponentClassTemplate(ScAgentContext & context, ScAddr const & uiComponent)
 {
-  StringScAddrMap extractedNamesAndClasses;
-  std::vector<std::string> extractedParameters = ExtractBracketsContent(classTemplateString);
+  ScAddr uiComponentClass;
+  std::string const componentClassAlias = "_component_class";
+  ScTemplate componentClassTemplate;
 
-  for (auto const & e : extractedParameters)
-  {
-    ScAddr parameterClass = context.SearchElementBySystemIdentifier(e);
+  //
+  // concept_ui_object = = = = = => uiComponentClass
+  //                        ^
+  //                        |
+  //
+  //                        |
+  //
+  //                        |
+  //
+  //                 nrel_inclusion
+  //
+  componentClassTemplate.Quintuple(
+      HTMLTranslatorKeynodes::concept_ui_object,
+      ScType::VarCommonArc,
+      ScType::VarNodeClass >> componentClassAlias,
+      ScType::VarPermPosArc,
+      HTMLTranslatorKeynodes::nrel_inclusion);
 
-    if (!context.IsElement(parameterClass))
-    {
-      SC_LOG_ERROR("ParameterRetriever: given parameter class is invalid.");
-      throw utils::ScException(
-          utils::ExceptionInvalidParams(
-              "ParameterRetriever: given parameter class is invalid.",
-              "Class with the name provided as a parameter in the html template "
-              "is invalid."));
-    }
+  //
+  // uiComponentClass - - - -> uiComponent
+  //
+  componentClassTemplate.Triple(componentClassAlias, ScType::VarPermPosArc, uiComponent);
 
-    extractedNamesAndClasses[e] = parameterClass;
-  }
-
-  return extractedNamesAndClasses;
-}
-
-/*!
- * @brief Extracts strings inside brackets.
- * @param str String with content.
- * @return Vector with nested strings.
- *
- * We recieve something like:
- * "{something} blabla {any}"
- *
- * Extract and return: "something", "any".
- *
- */
-std::vector<std::string> ExtractBracketsContent(std::string const & str)
-{
-  std::vector<std::string> extractedContent;
-  std::string tempStr = "";
-  unsigned int collectMode = 0;
-
-  // Assuming there are no nested brackets like: {...{...{}}}
-  for (int i = 0; i < str.size(); i++)
-  {
-    if (str[i] == '}')
-    {
-      extractedContent.push_back(tempStr);
-      tempStr.clear();
-      collectMode--;
-    }
-
-    if (collectMode == 1)
-    {
-      tempStr.push_back(str[i]);
-    }
-
-    if (str[i] == '{')
-    {
-      collectMode++;
-
-      if (collectMode > 1)
+  context.SearchByTemplateInterruptibly(
+      componentClassTemplate,
+      [&componentClassAlias, &uiComponentClass](ScTemplateSearchResultItem const & item)
       {
-        SC_LOG_ERROR("ParameterRetriever: given html template is invalid.");
-        throw utils::ScException(
-            utils::ExceptionInvalidParams(
-                "ParameterRetriever: given html template is invalid.",
-                "Multiple nested brackets {...{...}} were given."));
-      }
-    }
+        item.Get(componentClassAlias, uiComponentClass);
+        return ScTemplateSearchRequest::STOP;
+      });
+
+  if (!context.IsElement(uiComponentClass))
+  {
+    SC_LOG_ERROR("ParameterRetriever: given component doesn't has it's class.");
+    throw utils::ScException(
+        utils::ExceptionItemNotFound("ParameterRetriever: given component doesn't has it's class.", ""));
   }
-  return extractedContent;
+
+  //
+  // uiComponentClass = = = = = => scClassTemplate
+  //                       ^
+  //                       |
+  //
+  //                       |
+  //
+  //                       |
+  //
+  //                nrel_sc_template
+  //
+  ScAddr scClassTemplateStructure =
+      utils::IteratorUtils::getAnyByOutRelation(&context, uiComponentClass, HTMLTranslatorKeynodes::nrel_sc_template);
+
+  if (!context.IsElement(uiComponentClass))
+  {
+    SC_LOG_ERROR(
+        "ParameterRetriever: given component class doesn't has it's template / doesn't has it's template linked with "
+        "nrel_sc_template relation.");
+    throw utils::ScException(
+        utils::ExceptionItemNotFound(
+            "ParameterRetriever: given component class doesn't has it's template / doesn't has it's template linked "
+            "with nrel_sc_template relation.",
+            ""));
+  }
+
+  ScTemplate scClassTemplate;
+  try
+  {
+    context.BuildTemplate(scClassTemplate, scClassTemplateStructure);
+  }
+  catch (utils::ExceptionInvalidState)
+  {
+    SC_LOG_ERROR("ParameterRetriever: given component class template is invalid.");
+    throw utils::ScException(
+        utils::ExceptionItemNotFound("ParameterRetriever: given component class template is invalid.", ""));
+  }
+
+  return scClassTemplate;
 }
 }  // namespace htmlTranslationModule

@@ -88,11 +88,10 @@ ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, ScAd
       ScType::VarPermPosArc,
       HTMLTranslatorKeynodes::nrel_html_template);
 
-  // Search only the first template result (component)
+  // Search only the first template result
   context.SearchByTemplateInterruptibly(
       componentHTMLTemplate,
-      [&componentHTMLTemplateLinkAlias,
-       &componentHTMLTemplateLink](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
+      [&componentHTMLTemplateLinkAlias, &componentHTMLTemplateLink](ScTemplateSearchResultItem const & item)
       {
         item.Get(componentHTMLTemplateLinkAlias, componentHTMLTemplateLink);
         return ScTemplateSearchRequest::STOP;
