@@ -40,24 +40,11 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScAgentContext & context, ScAddr const 
     return answerHTMLLink;
   }
 
-  // We are getting 2 templates here: general template for class of (given)
-  // component and specific template for (given) ui component
+  // We are getting specific template for given ui component
   ScAddr componentHTMLTemplateLink = GetUIComponentHTMLTemplate(context, uiComponent);
-
-  if (!context.IsElement(componentHTMLTemplateLink))
-  {
-    SC_LOG_ERROR("HTMLTranslator: nrel_html_template not found.");
-    throw utils::ScException(
-        utils::ExceptionItemNotFound("HTMLTranslator: html template for element is not found.", ""));
-  }
 
   // This link should contain fully translated html document
   answerHTMLLink = GetAnswerLink(context, uiComponent, componentHTMLTemplateLink);
-
-  if (!context.IsElement(answerHTMLLink))
-  {
-    throw utils::ScException(utils::ExceptionInvalidState("HTMLTranslator: Recursive answer element is invalid.", ""));
-  }
 
   return answerHTMLLink;
 }
@@ -97,6 +84,13 @@ ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, ScAd
         return ScTemplateSearchRequest::STOP;
       });
 
+  if (!context.IsElement(componentHTMLTemplateLink))
+  {
+    SC_LOG_ERROR("HTMLTranslator: nrel_html_template not found.");
+    throw utils::ScException(
+        utils::ExceptionItemNotFound("HTMLTranslator: html template for element is not found.", ""));
+  }
+
   return componentHTMLTemplateLink;
 }
 
@@ -110,32 +104,17 @@ ScAddr HTMLTranslator::GetAnswerLink(
   std::string componentTemplateString;
   context.GetLinkContent(componentHTMLTemplateLink, componentTemplateString);
 
-  // Of what components does our uiComponent consists of?
+  // What nested components do we have
   StringScAddrMap nestedComponents = ParameterRetriever::GetNestedUIComponents(context, uiComponent);
 
+  // Get theirs html representation
+  StringStringMap IDsAndRepresentations = GetNestedComponentsHTMLRepresentation(context, nestedComponents);
+
   // Replace parameters with actual html code
-  for (auto const & [name, parameter] : nestedComponents)
+  for (auto const & [ID, representation] : IDsAndRepresentations)
   {
-    // launch recursive agent for nested components
-    ScAction action = context.GenerateAction(HTMLTranslatorKeynodes::action_translate_sc_to_html);
-    action.SetArguments(parameter);
-    action.InitiateAndWait();
-    ScStructure translationResult = action.GetResult();
-    ScAddr translationResultLink = utils::IteratorUtils::getAnyFromSet(&context, translationResult);
-
-    if (!context.IsElement(translationResultLink))
-    {
-      SC_LOG_ERROR("HTMLTranslator: translation of " + name + " component failed.");
-      throw utils::ScException(
-          utils::ExceptionItemNotFound("HTMLTranslator: translation of " + name + " component failed.", ""));
-    }
-    //
-
-    std::string nestedComponentHtml;
-    context.GetLinkContent(translationResultLink, nestedComponentHtml);
-
     // Update template content by reference
-    InsertParameterValue(componentTemplateString, name, nestedComponentHtml);
+    InsertParameterValue(componentTemplateString, ID, representation);
   }
 
   context.SetLinkContent(linkWithHTMLRepresentation, componentTemplateString);
@@ -144,15 +123,48 @@ ScAddr HTMLTranslator::GetAnswerLink(
   ScAddr arcAddr = context.GenerateConnector(ScType::CommonArc, uiComponent, linkWithHTMLRepresentation);
   context.GenerateConnector(ScType::PermPosArc, HTMLTranslatorKeynodes::nrel_html_representation, arcAddr);
 
+  if (!context.IsElement(linkWithHTMLRepresentation))
+  {
+    SC_LOG_ERROR("HTMLTranslator: Recursive answer link is invalid.");
+    throw utils::ScException(utils::ExceptionInvalidState("HTMLTranslator: Recursive answer link is invalid.", ""));
+  }
   return linkWithHTMLRepresentation;
+}
+
+StringStringMap HTMLTranslator::GetNestedComponentsHTMLRepresentation(
+    ScAgentContext & context,
+    StringScAddrMap const & nestedComponents)
+{
+  StringStringMap IDsAndRepresentations;
+  for (auto const & [ID, parameterAddr] : nestedComponents)
+  {
+    // launch recursive agent for nested components
+    ScAction action = context.GenerateAction(HTMLTranslatorKeynodes::action_translate_sc_to_html);
+    action.SetArguments(parameterAddr);
+    action.InitiateAndWait();
+    ScStructure translationResult = action.GetResult();
+    ScAddr translationResultLink = utils::IteratorUtils::getAnyFromSet(&context, translationResult);
+
+    if (!context.IsElement(translationResultLink))
+    {
+      SC_LOG_ERROR("HTMLTranslator: translation of component with id=" + ID + " failed.");
+      throw utils::ScException(
+          utils::ExceptionItemNotFound("HTMLTranslator: translation of component with id=" + ID + " failed.", ""));
+    }
+    //
+    std::string representation;
+    context.GetLinkContent(translationResultLink, representation);
+    IDsAndRepresentations[ID] = representation;
+  }
+  return IDsAndRepresentations;
 }
 
 void HTMLTranslator::InsertParameterValue(
     std::string & componentTemplateString,
-    std::string const & parameterName,
+    std::string const & parameterID,
     std::string const & parameterValue)
 {
-  std::string foundParameterName = "";
+  std::string foundParameterID = "";
   unsigned int start = 0, end = 0, collectMode = 0;
 
   for (int i = 0; i < componentTemplateString.size(); i++)
@@ -160,20 +172,20 @@ void HTMLTranslator::InsertParameterValue(
     if (componentTemplateString[i] == '}')
     {
       end = i;
-      if (foundParameterName == parameterName)
+      if (foundParameterID == parameterID)
       {
         componentTemplateString.replace(start, end - start + 1, parameterValue);
         break;
       }
 
-      foundParameterName.clear();
+      foundParameterID.clear();
       start = end = 0;
       collectMode--;
     }
 
     if (collectMode == 1)
     {
-      foundParameterName.push_back(componentTemplateString[i]);
+      foundParameterID.push_back(componentTemplateString[i]);
     }
 
     if (componentTemplateString[i] == '{')

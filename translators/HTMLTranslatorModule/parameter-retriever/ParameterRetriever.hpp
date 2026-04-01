@@ -18,7 +18,6 @@ namespace htmlTranslationModule
 {
 
 using StringScAddrMap = std::map<std::string, ScAddr>;
-using StringScAddrSetMap = std::map<std::string, ScAddrSet>;
 
 class ParameterRetriever
 {

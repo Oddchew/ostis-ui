@@ -24,6 +24,8 @@ public:
 
   static inline ScKeynode const _root_ui_obj{"_root_ui_obj", ScType::VarNodeClass};
 
+  static inline ScKeynode const _ui_obj{"_ui_obj", ScType::VarNodeClass};
+
   static inline ScKeynode const nrel_html_template{"nrel_html_template", ScType::ConstNodeNonRole};
 
   static inline ScKeynode const nrel_html_parameter_id{"nrel_html_parameter_id", ScType::ConstNodeNonRole};

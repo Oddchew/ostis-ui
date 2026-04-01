@@ -9,10 +9,13 @@
 #include <sc-memory/sc_addr.hpp>
 #include <sc-memory/sc_agent.hpp>
 #include <sc-memory/sc_memory.hpp>
+#include <map>
 #include <string>
 
 namespace htmlTranslationModule
 {
+using StringStringMap = std::map<std::string, std::string>;
+using StringScAddrMap = std::map<std::string, ScAddr>;
 
 class HTMLTranslator
 {
@@ -23,9 +26,12 @@ public:
       ScAgentContext & context,
       ScAddr const & uiElement,
       ScAddr const & componentHTMLTemplateLink);
+  static StringStringMap GetNestedComponentsHTMLRepresentation(
+      ScAgentContext & context,
+      StringScAddrMap const & nestedComponents);
   static void InsertParameterValue(
       std::string & componentTemplateString,
-      std::string const & parameterName,
+      std::string const & parameterID,
       std::string const & parameterValue);
 };
 

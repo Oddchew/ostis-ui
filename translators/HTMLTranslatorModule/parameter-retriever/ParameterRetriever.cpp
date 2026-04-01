@@ -26,14 +26,17 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
 
   ScTemplate scClassTemplate = GetComponentClassTemplate(context, uiComponent);
 
+  // Getting parameters
   context.SearchByTemplateInterruptibly(
       scClassTemplate,
       [&unmappedParameters, &uiComponent](ScTemplateSearchResultItem const & item)
       {
-        ScAddr someRootComponent;
-
-        
-        return ScTemplateSearchRequest::STOP;
+        ScAddr const someRootComponent = item[HTMLTranslatorKeynodes::_root_ui_obj];
+        if (someRootComponent == uiComponent)
+        {
+          unmappedParameters.insert(item[HTMLTranslatorKeynodes::_ui_obj]);
+        }
+        return ScTemplateSearchRequest::CONTINUE;
       });
 
   // ScTemplateSearchResult foundStructures;
@@ -48,7 +51,7 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
   // }
 
   // We check here which link with ID corresponds to which component.
-  for (auto const & e : unmappedParameters)
+  for (auto const & param : unmappedParameters)
   {
     //
     // parameter = = = = = => _parameter_id_link
@@ -62,7 +65,7 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
     //      nrel_html_parameter_id
     //
     ScAddr linkWithID =
-        utils::IteratorUtils::getAnyByOutRelation(&context, e, HTMLTranslatorKeynodes::nrel_html_parameter_id);
+        utils::IteratorUtils::getAnyByOutRelation(&context, param, HTMLTranslatorKeynodes::nrel_html_parameter_id);
 
     if (!context.IsElement(linkWithID))
     {
@@ -73,7 +76,7 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
 
     std::string idLinkValue;
     context.GetLinkContent(linkWithID, idLinkValue);
-    nestedComponents[idLinkValue] = e;
+    nestedComponents[idLinkValue] = param;
   }
 
   return nestedComponents;
