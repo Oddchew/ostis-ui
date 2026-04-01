@@ -39,16 +39,6 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
         return ScTemplateSearchRequest::CONTINUE;
       });
 
-  // ScTemplateSearchResult foundStructures;
-  // context.SearchByTemplate(scClassTemplate, foundStructures);
-
-  // for (int i = 0; i < foundStructures.Size(); i++)
-  // {
-  //   ScTemplateResultItem const & item = foundStructures[i];
-  //   if (item.Has(uiComponent))
-  //   {
-  //   }
-  // }
 
   // We check here which link with ID corresponds to which component.
   for (auto const & param : unmappedParameters)
