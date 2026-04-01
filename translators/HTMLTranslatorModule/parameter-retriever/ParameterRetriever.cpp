@@ -59,14 +59,13 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(
         HTMLTranslatorKeynodes::nrel_parameter);
 
     // Search for all parameters
-    context.SearchByTemplateInterruptibly(
+    context.SearchByTemplate(
         parameterTemplate,
         [&parameterAlias, &parameter, &unmappedParameters](
-            ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
+            ScTemplateSearchResultItem const & item)
         {
           item.Get(parameterAlias, parameter);
           unmappedParameters.push_back(parameter);
-          return ScTemplateSearchRequest::CONTINUE;
         });
   }
 
