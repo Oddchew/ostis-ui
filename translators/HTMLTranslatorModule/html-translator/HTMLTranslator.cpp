@@ -29,6 +29,7 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScAgentContext & context, ScAddr const 
   }
 
   // If element already has html translation - return it
+  //
   // TODO: we need mechanism that will allow us to regenerate component (some
   // bool flag?)
   ScAddr answerHTMLLink =
@@ -41,20 +42,17 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScAgentContext & context, ScAddr const 
 
   // We are getting 2 templates here: general template for class of (given)
   // component and specific template for (given) ui component
-  auto [componentHTMLTemplateLink, classHTMLTemplateLink] = GetUIComponentHTMLTemplate(context, uiComponent);
+  ScAddr componentHTMLTemplateLink = GetUIComponentHTMLTemplate(context, uiComponent);
 
-  if (!context.IsElement(componentHTMLTemplateLink) || !context.IsElement(classHTMLTemplateLink))
+  if (!context.IsElement(componentHTMLTemplateLink))
   {
     SC_LOG_ERROR("HTMLTranslator: nrel_html_template not found.");
     throw utils::ScException(
-        utils::ExceptionItemNotFound(
-            "HTMLTranslator: nrel_html_template of the component class or of "
-            "element not found.",
-            ""));
+        utils::ExceptionItemNotFound("HTMLTranslator: html template for element is not found.", ""));
   }
 
   // This link should contain fully translated html document
-  answerHTMLLink = GetAnswerLink(context, uiComponent, componentHTMLTemplateLink, classHTMLTemplateLink);
+  answerHTMLLink = GetAnswerLink(context, uiComponent, componentHTMLTemplateLink);
 
   if (!context.IsElement(answerHTMLLink))
   {
@@ -64,39 +62,12 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScAgentContext & context, ScAddr const 
   return answerHTMLLink;
 }
 
-ScAddrPair HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent)
+ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent)
 {
-  ScAddr componentHTMLTemplateLink, classHTMLTemplateLink;
-  std::string const classAlias = "_ui_component_class";
-  std::string const classHTMLTemplateLinkAlias = "_class_html_template_link";
+  ScAddr componentHTMLTemplateLink;
   std::string const componentHTMLTemplateLinkAlias = "_component_html_template_link";
 
-  ScTemplate classHTMLTemplate, componentHTMLTemplate;
-
-  //
-  // class - - - -> component
-  //
-  // component class:
-  classHTMLTemplate.Triple(ScType::VarNodeClass >> classAlias, ScType::VarPermPosArc, uiComponent);
-
-  //
-  // class = = = = = => template_link_for_class
-  //             ^
-  //             |
-  //
-  //             |
-  //
-  //             |
-  //
-  //      nrel_html_template
-  //
-  // Search for an HTML template for this class
-  classHTMLTemplate.Quintuple(
-      classAlias,
-      ScType::VarCommonArc,
-      ScType::VarNodeLink >> classHTMLTemplateLinkAlias,
-      ScType::VarPermPosArc,
-      HTMLTranslatorKeynodes::nrel_html_template);
+  ScTemplate componentHTMLTemplate;
 
   //
   // component = = = = = => template_link_for_component
@@ -117,16 +88,6 @@ ScAddrPair HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, 
       ScType::VarPermPosArc,
       HTMLTranslatorKeynodes::nrel_html_template);
 
-  // Search only the first template result (class)
-  context.SearchByTemplateInterruptibly(
-      classHTMLTemplate,
-      [&classHTMLTemplateLinkAlias,
-       &classHTMLTemplateLink](ScTemplateSearchResultItem const & item) -> ScTemplateSearchRequest
-      {
-        item.Get(classHTMLTemplateLinkAlias, classHTMLTemplateLink);
-        return ScTemplateSearchRequest::STOP;
-      });
-
   // Search only the first template result (component)
   context.SearchByTemplateInterruptibly(
       componentHTMLTemplate,
@@ -137,24 +98,21 @@ ScAddrPair HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, 
         return ScTemplateSearchRequest::STOP;
       });
 
-  return {componentHTMLTemplateLink, classHTMLTemplateLink};
+  return componentHTMLTemplateLink;
 }
 
 ScAddr HTMLTranslator::GetAnswerLink(
     ScAgentContext & context,
     ScAddr const & uiComponent,
-    ScAddr const & componentHTMLTemplateLink,
-    ScAddr const & classHTMLTemplateLink)
+    ScAddr const & componentHTMLTemplateLink)
 {
   ScAddr linkWithHTMLRepresentation = context.GenerateLink();
 
-  std::string componentTemplateString, classTemplateString;
+  std::string componentTemplateString;
   context.GetLinkContent(componentHTMLTemplateLink, componentTemplateString);
-  context.GetLinkContent(classHTMLTemplateLink, classTemplateString);
 
   // Of what components does our uiComponent consists of?
-  StringScAddrMap nestedComponents =
-      ParameterRetriever::GetNestedUIComponents(context, uiComponent, classTemplateString);
+  StringScAddrMap nestedComponents = ParameterRetriever::GetNestedUIComponents(context, uiComponent);
 
   // Replace parameters with actual html code
   for (auto const & [name, parameter] : nestedComponents)

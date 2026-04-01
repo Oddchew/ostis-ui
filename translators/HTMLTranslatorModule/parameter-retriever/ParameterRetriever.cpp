@@ -18,16 +18,13 @@ using namespace utils;
 namespace htmlTranslationModule
 {
 
-StringScAddrMap ParameterRetriever::GetNestedUIComponents(
-    ScAgentContext & context,
-    ScAddr const & uiComponent,
-    std::string const & classTemplateString)
+StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & context, ScAddr const & uiComponent)
 {
   StringScAddrMap nestedComponents;
 
   ScAddrVector unmappedParameters;
 
-  StringScAddrMap parameterClasses = ExtractParameterClasses(context, classTemplateString);
+  StringScAddrMap parameterClasses = ExtractParameterClasses(context, uiComponent);
 
   for (auto const & [name, node] : parameterClasses)
   {
@@ -61,8 +58,7 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(
     // Search for all parameters
     context.SearchByTemplate(
         parameterTemplate,
-        [&parameterAlias, &parameter, &unmappedParameters](
-            ScTemplateSearchResultItem const & item)
+        [&parameterAlias, &parameter, &unmappedParameters](ScTemplateSearchResultItem const & item)
         {
           item.Get(parameterAlias, parameter);
           unmappedParameters.push_back(parameter);

@@ -10,23 +10,19 @@
 #include <sc-memory/sc_agent.hpp>
 #include <sc-memory/sc_memory.hpp>
 #include <string>
-#include <utility>
 
 namespace htmlTranslationModule
 {
-
-using ScAddrPair = std::pair<ScAddr, ScAddr>;
 
 class HTMLTranslator
 {
 public:
   static ScAddr TranslateScToHTML(ScAgentContext & context, ScAddr const & rootUiElement);
-  static ScAddrPair GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent);
+  static ScAddr GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent);
   static ScAddr GetAnswerLink(
       ScAgentContext & context,
       ScAddr const & uiElement,
-      ScAddr const & componentHTMLTemplateLink,
-      ScAddr const & classHTMLTemplateLink);
+      ScAddr const & componentHTMLTemplateLink);
   static void InsertParameterValue(
       std::string & componentTemplateString,
       std::string const & parameterName,

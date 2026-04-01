@@ -25,8 +25,7 @@ class ParameterRetriever
 public:
   static StringScAddrMap GetNestedUIComponents(
       ScAgentContext & context,
-      ScAddr const & uiComponent,
-      std::string const & classTemplateString);
+      ScAddr const & uiComponent);
 
   static StringScAddrMap ExtractParameterClasses(ScAgentContext & context, std::string const & classTemplateString);
 
