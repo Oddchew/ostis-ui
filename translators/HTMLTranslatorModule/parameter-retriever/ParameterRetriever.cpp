@@ -39,7 +39,6 @@ StringScAddrMap ParameterRetriever::GetNestedUIComponents(ScAgentContext & conte
         return ScTemplateSearchRequest::CONTINUE;
       });
 
-
   // We check here which link with ID corresponds to which component.
   for (auto const & param : unmappedParameters)
   {
