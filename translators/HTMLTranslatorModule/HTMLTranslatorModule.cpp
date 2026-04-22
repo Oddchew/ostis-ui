@@ -5,9 +5,12 @@
  */
 
 #include "agents/HTMLTranslatorAgent.hpp"
+#include "agents/UIComponentsReorderAgent.hpp"
 
 #include "HTMLTranslatorModule.hpp"
 
 using namespace htmlTranslationModule;
 
-SC_MODULE_REGISTER(HTMLTranslatorModule)->Agent<HTMLTranslatorAgent>();
+SC_MODULE_REGISTER(HTMLTranslatorModule)
+    ->Agent<HTMLTranslatorAgent>()
+    ->Agent<UIComponentsReorderAgent>();
