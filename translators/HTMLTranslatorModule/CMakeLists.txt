@@ -1,6 +1,7 @@
 set(HTML_TRANSLATOR_SOURCES
-	"HTMLTranslatorModule.cpp"
-	"agents/HTMLTranslatorAgent.cpp"
+    "HTMLTranslatorModule.cpp"
+    "agents/HTMLTranslatorAgent.cpp"
+    "agents/UIComponentsReorderAgent.cpp"
     "html-translator/HTMLTranslator.cpp"
     "parameter-retriever/ParameterRetriever.cpp"
     "HTTPServer.cpp"
@@ -11,6 +12,7 @@ set(HTML_TRANSLATOR_HEADERS
     "HTMLTranslatorModule.hpp"
     "keynodes/HTMLTranslatorKeynodes.hpp"
     "agents/HTMLTranslatorAgent.hpp"
+    "agents/UIComponentsReorderAgent.hpp"
     "html-translator/HTMLTranslator.hpp"
     "parameter-retriever/ParameterRetriever.hpp"
     "HTTPServer.hpp"
