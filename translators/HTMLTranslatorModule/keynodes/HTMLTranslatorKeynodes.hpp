@@ -16,6 +16,15 @@ class HTMLTranslatorKeynodes : public ScKeynodes
 public:
   static inline ScKeynode const action_translate_sc_to_html{"action_translate_sc_to_html", ScType::ConstNodeClass};
 
+  // Изменение позиции двух дочерних UI-компонентов внутри родителя.
+  // Аргументы:
+  //   rrel_1 — родительский UI-компонент (ScAddr)
+  //   rrel_2 — ScLink со строкой первого  nrel_html_parameter_id
+  //   rrel_3 — ScLink со строкой второго  nrel_html_parameter_id
+  static inline ScKeynode const action_reorder_ui_components{
+      "action_reorder_ui_components",
+      ScType::ConstNodeClass};
+
   static inline ScKeynode const concept_ui_object{"concept_ui_object", ScType::ConstNodeClass};
 
   static inline ScKeynode const concept_current_ostis_ui_model{

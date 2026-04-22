@@ -49,6 +49,52 @@ ScAddr HTMLTranslator::TranslateScToHTML(ScAgentContext & context, ScAddr const 
   return answerHTMLLink;
 }
 
+ScAddr HTMLTranslator::RegenerateHTMLRepresentation(ScAgentContext & context, ScAddr const & uiComponent)
+{
+  if (!context.IsElement(uiComponent))
+  {
+    SC_LOG_ERROR("HTMLTranslator: given UI element is invalid.");
+    throw utils::ScException(utils::ExceptionInvalidParams("HTMLTranslator: given UI element is invalid.", ""));
+  }
+ 
+  ScAddr componentHTMLTemplateLink = GetUIComponentHTMLTemplate(context, uiComponent);
+ 
+  std::string componentTemplateString;
+  context.GetLinkContent(componentHTMLTemplateLink, componentTemplateString);
+ 
+  // Получаем дочерние компоненты с их актуальными ID (уже после свапа)
+  StringScAddrMap nestedComponents = ParameterRetriever::GetNestedUIComponents(context, uiComponent);
+  StringStringMap representations = GetNestedComponentsHTMLRepresentation(context, nestedComponents);
+ 
+  for (auto const & [id, repr] : representations)
+  {
+    InsertParameterValue(componentTemplateString, id, repr);
+  }
+ 
+  // Проверяем, есть ли уже существующая ссылка с HTML-представлением
+  ScAddr existingRepr =
+      IteratorUtils::getAnyByOutRelation(&context, uiComponent, HTMLTranslatorKeynodes::nrel_html_representation);
+ 
+  if (context.IsElement(existingRepr))
+  {
+    // Обновляем содержимое существующей ссылки — кэш не нужно удалять
+    context.SetLinkContent(existingRepr, componentTemplateString);
+    SC_LOG_DEBUG("HTMLTranslator: HTML representation updated for component.");
+    return existingRepr;
+  }
+ 
+  // Ссылки ещё нет — создаём
+  ScAddr newLink = context.GenerateLink();
+  context.SetLinkContent(newLink, componentTemplateString);
+ 
+  ScAddr arcAddr = context.GenerateConnector(ScType::CommonArc, uiComponent, newLink);
+  context.GenerateConnector(ScType::PermPosArc, HTMLTranslatorKeynodes::nrel_html_representation, arcAddr);
+ 
+  SC_LOG_DEBUG("HTMLTranslator: new HTML representation created for component.");
+  return newLink;
+}
+
+
 ScAddr HTMLTranslator::GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent)
 {
   ScAddr componentHTMLTemplateLink;

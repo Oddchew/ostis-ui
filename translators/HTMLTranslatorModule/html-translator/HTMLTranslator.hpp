@@ -21,6 +21,7 @@ class HTMLTranslator
 {
 public:
   static ScAddr TranslateScToHTML(ScAgentContext & context, ScAddr const & rootUiElement);
+  static ScAddr RegenerateHTMLRepresentation(ScAgentContext & context, ScAddr const & uiComponent);
   static ScAddr GetUIComponentHTMLTemplate(ScAgentContext & context, ScAddr const & uiComponent);
   static ScAddr GetAnswerLink(
       ScAgentContext & context,
