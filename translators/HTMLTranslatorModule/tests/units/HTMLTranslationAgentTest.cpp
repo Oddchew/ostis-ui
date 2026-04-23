@@ -5,6 +5,7 @@
  */
 
 #include <sc-builder/scs_loader.hpp>
+#include <sc-memory/sc_addr.hpp>
 #include <sc-memory/test/sc_test.hpp>
 
 #include <sc-agents-common/utils/IteratorUtils.hpp>
@@ -39,8 +40,8 @@ void TestHTMLTranslatorAgent(ScAgentContext &context,
       &context, actionNode, ScKeynodes::rrel_1);
   EXPECT_TRUE(context.IsElement(rootUiElement));
 
-  ScAction action = context.GenerateAction(
-      HTMLTranslatorKeynodes::action_translate_sc_node_to_html);
+  ScAction action = context.GenerateAction(ScAddr::Empty);
+      //HTMLTranslatorKeynodes::action_translate_sc_node_to_html);
   action.SetArguments(rootUiElement);
   action.InitiateAndWait();
 
