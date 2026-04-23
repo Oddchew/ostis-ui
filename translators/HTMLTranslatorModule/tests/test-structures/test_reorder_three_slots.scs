@@ -1,0 +1,58 @@
+/* test_reorder_three_slots.scs
+ *
+ * Родитель с тремя дочерними компонентами: slot1, slot2, slot3.
+ * Тест: меняем местами slot1 и slot3, slot2 остаётся на месте.
+ */
+
+concept_ui_object
+    => nrel_inclusion: concept_container_component;;
+
+concept_ui_object
+    => nrel_inclusion: concept_text_component;;
+
+concept_container_component
+    => nrel_sc_template: [*
+        _root_ui_obj _-> _ui_obj;;
+    *];;
+
+concept_text_component
+    => nrel_sc_template: [*
+        _root_ui_obj _-> _ui_obj;;
+    *];;
+
+
+comp_header
+    => nrel_html_template: [<h1>Header</h1>];;
+
+comp_header
+    => nrel_html_parameter_id: [slot1];;
+
+concept_text_component -> comp_header;;
+
+
+comp_paragraph
+    => nrel_html_template: [<p>Paragraph</p>];;
+
+comp_paragraph
+    => nrel_html_parameter_id: [slot2];;
+
+concept_text_component -> comp_paragraph;;
+
+
+comp_footer
+    => nrel_html_template: [<footer>Footer</footer>];;
+
+comp_footer
+    => nrel_html_parameter_id: [slot3];;
+
+concept_text_component -> comp_footer;;
+
+
+test_three_slot_parent
+    => nrel_html_template: [<div>{slot1}{slot2}{slot3}</div>];;
+
+test_three_slot_parent -> comp_header;;
+test_three_slot_parent -> comp_paragraph;;
+test_three_slot_parent -> comp_footer;;
+
+concept_container_component -> test_three_slot_parent;;
