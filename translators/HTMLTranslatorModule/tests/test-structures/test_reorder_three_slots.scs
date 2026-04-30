@@ -1,58 +1,62 @@
-/* test_reorder_three_slots.scs
- *
- * Родитель с тремя дочерними компонентами: slot1, slot2, slot3.
- * Тест: меняем местами slot1 и slot3, slot2 остаётся на месте.
- */
+/* test_reorder_three_slots.scs — ИСПРАВЛЕННАЯ ВЕРСИЯ */
 
-concept_ui_object
-    => nrel_inclusion: concept_container_component;;
+/* === ОБЯЗАТЕЛЬНО: объявляем классы === */
+concept_container_component <- sc_node_class;;
+concept_text_component      <- sc_node_class;;
+concept_ui_object           <- sc_node_class;;
 
-concept_ui_object
-    => nrel_inclusion: concept_text_component;;
+nrel_inclusion    <- sc_node_non_role_relation;;
+nrel_sc_template  <- sc_node_non_role_relation;;
+nrel_html_template        <- sc_node_non_role_relation;;
+nrel_html_parameter_id    <- sc_node_non_role_relation;;
 
-concept_container_component
-    => nrel_sc_template: [*
-        _root_ui_obj _-> _ui_obj;;
-    *];;
+/* Привязка классов к concept_ui_object через именованные дуги */
+@inc_cont = (concept_ui_object => concept_container_component);;
+@inc_cont -> nrel_inclusion;;
 
-concept_text_component
-    => nrel_sc_template: [*
-        _root_ui_obj _-> _ui_obj;;
-    *];;
+@inc_txt = (concept_ui_object => concept_text_component);;
+@inc_txt -> nrel_inclusion;;
 
+/* SC-шаблоны для поиска дочерних компонентов */
+sc_tmpl_container = [*
+    concept_container_component <- sc_node_class;;
+    _root_ui_obj <- sc_node_class;;
+    _ui_obj <- sc_node_class;;
+    _ui_obj -> _root_ui_obj;;
+*];;
+@sc_tmpl_cont_arc = (concept_container_component => sc_tmpl_container);;
+@sc_tmpl_cont_arc -> nrel_sc_template;;
 
+sc_tmpl_text = [*
+    concept_text_component <- sc_node_class;;
+    _root_ui_obj <- sc_node_class;;
+    _ui_obj <- sc_node_class;;
+    _ui_obj -> _root_ui_obj;;
+*];;
+@sc_tmpl_txt_arc = (concept_text_component => sc_tmpl_text);;
+@sc_tmpl_txt_arc -> nrel_sc_template;;
+
+/* Экземпляры компонентов */
 comp_header
-    => nrel_html_template: [<h1>Header</h1>];;
-
-comp_header
-    => nrel_html_parameter_id: [slot1];;
-
-concept_text_component -> comp_header;;
-
+<- concept_text_component;;
+comp_header => nrel_html_template: [<h1>Header</h1>];;
+comp_header => nrel_html_parameter_id: [slot1];;
 
 comp_paragraph
-    => nrel_html_template: [<p>Paragraph</p>];;
-
-comp_paragraph
-    => nrel_html_parameter_id: [slot2];;
-
-concept_text_component -> comp_paragraph;;
-
+<- concept_text_component;;
+comp_paragraph => nrel_html_template: [<p>Paragraph</p>];;
+comp_paragraph => nrel_html_parameter_id: [slot2];;
 
 comp_footer
-    => nrel_html_template: [<footer>Footer</footer>];;
-
-comp_footer
-    => nrel_html_parameter_id: [slot3];;
-
-concept_text_component -> comp_footer;;
-
+<- concept_text_component;;
+comp_footer => nrel_html_template: [<footer>Footer</footer>];;
+comp_footer => nrel_html_parameter_id: [slot3];;
 
 test_three_slot_parent
-    => nrel_html_template: [<div>{slot1}{slot2}{slot3}</div>];;
+<- concept_container_component;;
+test_three_slot_parent => nrel_html_template: [<div>{slot1}{slot2}{slot3}</div>];;
 
-test_three_slot_parent -> comp_header;;
-test_three_slot_parent -> comp_paragraph;;
-test_three_slot_parent -> comp_footer;;
-
-concept_container_component -> test_three_slot_parent;;
+/* Дочерние компоненты указывают на родителя */
+comp_header -> test_three_slot_parent;;
+comp_paragraph -> test_three_slot_parent;;
+comp_footer -> test_three_slot_parent;;
