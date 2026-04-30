@@ -7,24 +7,34 @@
 /*
  * Назначение:
  *   Изменить порядок (позиции) двух дочерних UI-компонентов внутри
- *   родительского компонента путём обмена их nrel_html_parameter_id в SC-памяти
- *   с последующей принудительной перегенерацией HTML родителя.
+ *   родительского компонента путём переподключения их nrel_html_parameter_id
+ *   в SC-памяти с последующей принудительной перегенерацией HTML родителя.
  *
  * Архитектурное обоснование:
- *   Позиция дочернего компонента в HTML определяется тем, какой placeholder
- *   {<id>} он занимает в шаблоне родителя (nrel_html_template). ID placeholder'а
- *   хранится в nrel_html_parameter_id дочернего компонента. Чтобы переместить
- *   два компонента относительно друг друга, достаточно поменять их ID местами —
- *   при следующей (принудительной) трансляции шаблон подставит компоненты
- *   в обратном порядке.
+ *   До свапа:
+ *     comp_A ===[arc_A]===> link("slot1")
+ *                  ^
+ *                  |
+ *       nrel_html_parameter_id
  *
- *          Родитель
- *          template: "<div>{slot1}{slot2}</div>"
+ *     comp_B ===[arc_B]===> link("slot2")
+ *                  ^
+ *                  |
+ *       nrel_html_parameter_id
  *
- *          comp_A ---nrel_html_parameter_id---> "slot1"   ← будет "slot2"
- *          comp_B ---nrel_html_parameter_id---> "slot2"   ← будет "slot1"
+ *   После свапа:
+ *     comp_A ===[new_arc_A]===> link("slot2")   <- была ссылка comp_B
+ *                    ^
+ *                    |
+ *       nrel_html_parameter_id
  *
- *   После свапа шаблон заполняется: comp_B встанет на место slot1, comp_A — slot2.
+ *     comp_B ===[new_arc_B]===> link("slot1")   <- была ссылка comp_A
+ *                    ^
+ *                    |
+ *       nrel_html_parameter_id
+ *
+ *   При EraseElement(arc_A) sc-machine автоматически удаляет все дуги,
+ *   инцидентные arc_A — в том числе PermPosArc от nrel_html_parameter_id.
  */
 
 #include "UIComponentsReorderAgent.hpp"
@@ -33,6 +43,7 @@
 #include <sc-memory/sc_event.hpp>
 #include <sc-memory/sc_result.hpp>
 #include <sc-memory/sc_structure.hpp>
+#include <sc-memory/sc_template.hpp>
 
 #include <sc-agents-common/utils/IteratorUtils.hpp>
 
@@ -45,6 +56,91 @@ using namespace utils;
 namespace htmlTranslationModule
 {
 
+// ---------------------------------------------------------------------------
+// Вспомогательная структура: адреса дуг для одного компонента
+// ---------------------------------------------------------------------------
+struct ParameterIdArcPair
+{
+  ScAddr commonArc;   // CommonArc: component ===> idLink
+  ScAddr idLink;      // ScLink с ID (например "slot1")
+};
+
+// ---------------------------------------------------------------------------
+// FindParameterIdArcs
+//
+// Ищет квинтет:
+//   component ===[commonArc]===> idLink
+//                    ^
+//                    |
+//         nrel_html_parameter_id
+//
+// Возвращает адреса commonArc и idLink.
+// Если квинтет не найден — возвращает структуру с невалидными ScAddr.
+// ---------------------------------------------------------------------------
+static ParameterIdArcPair FindParameterIdArcs(
+    ScAgentContext & ctx,
+    ScAddr const & component,
+    ScAddr const & nrelParamId)
+{
+  ParameterIdArcPair result;
+
+  std::string const arcAlias  = "_param_id_arc";
+  std::string const linkAlias = "_param_id_link";
+
+  ScTemplate tmpl;
+  tmpl.Quintuple(
+      component,
+      ScType::VarCommonArc  >> arcAlias,
+      ScType::VarNodeLink   >> linkAlias,
+      ScType::VarPermPosArc,
+      nrelParamId);
+
+  ctx.SearchByTemplateInterruptibly(
+      tmpl,
+      [&](ScTemplateSearchResultItem const & item)
+      {
+        item.Get(arcAlias,  result.commonArc);
+        item.Get(linkAlias, result.idLink);
+        return ScTemplateSearchRequest::STOP;
+      });
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// ReconnectParameterId
+//
+// Удаляет старую дугу commonArc (вместе с ней sc-machine удалит
+// PermPosArc от nrel_html_parameter_id) и создаёт новую пятёрку:
+//   component ===[newArc]===> newIdLink
+//                  ^
+//                  |
+//     nrel_html_parameter_id
+//
+// Возвращает адрес новой дуги (commonArc).
+// ---------------------------------------------------------------------------
+static ScAddr ReconnectParameterId(
+    ScAgentContext & ctx,
+    ScAddr const & component,
+    ScAddr const & oldCommonArc,
+    ScAddr const & newIdLink,
+    ScAddr const & nrelParamId)
+{
+  // Отсоединяем старую дугу.
+  // Все дуги, инцидентные oldCommonArc (в том числе PermPosArc от nrel),
+  // удаляются sc-machine автоматически.
+  ctx.EraseElement(oldCommonArc);
+
+  // Подсоединяем к новой ссылке
+  ScAddr newCommonArc = ctx.GenerateConnector(ScType::CommonArc, component, newIdLink);
+  ctx.GenerateConnector(ScType::PermPosArc, nrelParamId, newCommonArc);
+
+  return newCommonArc;
+}
+
+// ---------------------------------------------------------------------------
+// DoProgram
+// ---------------------------------------------------------------------------
 ScResult UIComponentsReorderAgent::DoProgram(ScActionInitiatedEvent const & event, ScAction & action)
 {
   // ------------------------------------------------------------------
@@ -64,7 +160,7 @@ ScResult UIComponentsReorderAgent::DoProgram(ScActionInitiatedEvent const & even
   }
 
   // ------------------------------------------------------------------
-  // 2. Читаем строки ID из ссылок
+  // 2. Читаем строки ID из ссылок-аргументов
   // ------------------------------------------------------------------
   std::string firstId, secondId;
   m_context.GetLinkContent(firstIdLink, firstId);
@@ -83,7 +179,6 @@ ScResult UIComponentsReorderAgent::DoProgram(ScActionInitiatedEvent const & even
   if (firstId == secondId)
   {
     SC_LOG_WARNING("UIComponentsReorderAgent: both parameter IDs are equal — nothing to reorder.");
-    // Отдаём текущее HTML-представление родителя без изменений
     ScAddr currentRepr = IteratorUtils::getAnyByOutRelation(
         &m_context, parentComponent, HTMLTranslatorKeynodes::nrel_html_representation);
     if (m_context.IsElement(currentRepr))
@@ -110,13 +205,13 @@ ScResult UIComponentsReorderAgent::DoProgram(ScActionInitiatedEvent const & even
   }
 
   // ------------------------------------------------------------------
-  // 4. Ищем оба компонента по их ID
+  // 4. Находим оба компонента по их ID
   // ------------------------------------------------------------------
   auto it1 = nestedComponents.find(firstId);
   if (it1 == nestedComponents.end())
   {
     SC_LOG_ERROR(
-        "UIComponentsReorderAgent: child component with parameter_id='" + firstId + "' not found in parent.");
+        "UIComponentsReorderAgent: component with parameter_id='" + firstId + "' not found.");
     return action.FinishUnsuccessfully();
   }
 
@@ -124,42 +219,59 @@ ScResult UIComponentsReorderAgent::DoProgram(ScActionInitiatedEvent const & even
   if (it2 == nestedComponents.end())
   {
     SC_LOG_ERROR(
-        "UIComponentsReorderAgent: child component with parameter_id='" + secondId + "' not found in parent.");
+        "UIComponentsReorderAgent: component with parameter_id='" + secondId + "' not found.");
     return action.FinishUnsuccessfully();
   }
 
-  ScAddr const comp1 = it1->second;  // компонент, у которого ID == firstId
-  ScAddr const comp2 = it2->second;  // компонент, у которого ID == secondId
+  ScAddr const comp1 = it1->second;
+  ScAddr const comp2 = it2->second;
 
   // ------------------------------------------------------------------
-  // 5. Получаем SC-ссылки nrel_html_parameter_id каждого компонента
+  // 5. Находим адреса дуг и ссылок nrel_html_parameter_id
+  //    для каждого компонента
   // ------------------------------------------------------------------
-  ScAddr const comp1IdScLink =
-      IteratorUtils::getAnyByOutRelation(&m_context, comp1, HTMLTranslatorKeynodes::nrel_html_parameter_id);
-  ScAddr const comp2IdScLink =
-      IteratorUtils::getAnyByOutRelation(&m_context, comp2, HTMLTranslatorKeynodes::nrel_html_parameter_id);
+  ScAddr const nrelParamId = HTMLTranslatorKeynodes::nrel_html_parameter_id;
 
-  if (!m_context.IsElement(comp1IdScLink))
+  ParameterIdArcPair pair1 = FindParameterIdArcs(m_context, comp1, nrelParamId);
+  ParameterIdArcPair pair2 = FindParameterIdArcs(m_context, comp2, nrelParamId);
+
+  if (!m_context.IsElement(pair1.commonArc) || !m_context.IsElement(pair1.idLink))
   {
-    SC_LOG_ERROR("UIComponentsReorderAgent: nrel_html_parameter_id link for first component is invalid.");
+    SC_LOG_ERROR("UIComponentsReorderAgent: nrel_html_parameter_id arc not found for first component.");
     return action.FinishUnsuccessfully();
   }
-  if (!m_context.IsElement(comp2IdScLink))
+  if (!m_context.IsElement(pair2.commonArc) || !m_context.IsElement(pair2.idLink))
   {
-    SC_LOG_ERROR("UIComponentsReorderAgent: nrel_html_parameter_id link for second component is invalid.");
+    SC_LOG_ERROR("UIComponentsReorderAgent: nrel_html_parameter_id arc not found for second component.");
     return action.FinishUnsuccessfully();
   }
 
+  // Сохраняем ссылки до удаления дуг — они понадобятся для переподключения и отката
+  ScAddr const link1 = pair1.idLink;  // link("slot1") — сейчас у comp1
+  ScAddr const link2 = pair2.idLink;  // link("slot2") — сейчас у comp2
+
   // ------------------------------------------------------------------
-  // 6. Свапаем содержимое ID-ссылок в SC-памяти
-  //    comp1: firstId  → secondId
-  //    comp2: secondId → firstId
+  // 6. Переподключаем: удаляем старые дуги, создаём новые
+  //
+  //   comp1 ===> link1  →  comp1 ===> link2
+  //   comp2 ===> link2  →  comp2 ===> link1
   // ------------------------------------------------------------------
-  m_context.SetLinkContent(comp1IdScLink, secondId);
-  m_context.SetLinkContent(comp2IdScLink, firstId);
+
+  // Сначала удаляем обе старые дуги
+  m_context.EraseElement(pair1.commonArc);
+  m_context.EraseElement(pair2.commonArc);
+
+  // Подключаем comp1 к link2
+  ScAddr const newArc1 = m_context.GenerateConnector(ScType::CommonArc, comp1, link2);
+  m_context.GenerateConnector(ScType::PermPosArc, nrelParamId, newArc1);
+
+  // Подключаем comp2 к link1
+  ScAddr const newArc2 = m_context.GenerateConnector(ScType::CommonArc, comp2, link1);
+  m_context.GenerateConnector(ScType::PermPosArc, nrelParamId, newArc2);
 
   SC_LOG_DEBUG(
-      "UIComponentsReorderAgent: swapped parameter IDs '" + firstId + "' <-> '" + secondId + "'.");
+      "UIComponentsReorderAgent: reconnected parameter IDs '"
+      + firstId + "' <-> '" + secondId + "'.");
 
   // ------------------------------------------------------------------
   // 7. Принудительно перегенерируем HTML родителя (минуя кэш)
@@ -171,20 +283,33 @@ ScResult UIComponentsReorderAgent::DoProgram(ScActionInitiatedEvent const & even
   }
   catch (utils::ScException const &)
   {
-    // Откат свапа при ошибке трансляции
-    m_context.SetLinkContent(comp1IdScLink, firstId);
-    m_context.SetLinkContent(comp2IdScLink, secondId);
-    SC_LOG_ERROR(
-        "UIComponentsReorderAgent: HTML regeneration failed. Swap rolled back.");
+    // Откат: удаляем новые дуги и восстанавливаем старые
+    m_context.EraseElement(newArc1);
+    m_context.EraseElement(newArc2);
+
+    ScAddr rollbackArc1 = m_context.GenerateConnector(ScType::CommonArc, comp1, link1);
+    m_context.GenerateConnector(ScType::PermPosArc, nrelParamId, rollbackArc1);
+
+    ScAddr rollbackArc2 = m_context.GenerateConnector(ScType::CommonArc, comp2, link2);
+    m_context.GenerateConnector(ScType::PermPosArc, nrelParamId, rollbackArc2);
+
+    SC_LOG_ERROR("UIComponentsReorderAgent: HTML regeneration failed. Reconnection rolled back.");
     return action.FinishUnsuccessfully();
   }
 
   if (!m_context.IsElement(updatedReprLink))
   {
-    // Откат свапа
-    m_context.SetLinkContent(comp1IdScLink, firstId);
-    m_context.SetLinkContent(comp2IdScLink, secondId);
-    SC_LOG_ERROR("UIComponentsReorderAgent: regenerated HTML link is invalid. Swap rolled back.");
+    // Откат
+    m_context.EraseElement(newArc1);
+    m_context.EraseElement(newArc2);
+
+    ScAddr rollbackArc1 = m_context.GenerateConnector(ScType::CommonArc, comp1, link1);
+    m_context.GenerateConnector(ScType::PermPosArc, nrelParamId, rollbackArc1);
+
+    ScAddr rollbackArc2 = m_context.GenerateConnector(ScType::CommonArc, comp2, link2);
+    m_context.GenerateConnector(ScType::PermPosArc, nrelParamId, rollbackArc2);
+
+    SC_LOG_ERROR("UIComponentsReorderAgent: regenerated HTML link is invalid. Rolled back.");
     return action.FinishUnsuccessfully();
   }
 

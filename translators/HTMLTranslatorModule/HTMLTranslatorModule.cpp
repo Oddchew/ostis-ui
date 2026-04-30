@@ -13,4 +13,5 @@ using namespace htmlTranslationModule;
 
 SC_MODULE_REGISTER(HTMLTranslatorModule)
     ->Agent<HTMLTranslatorAgent>()
-    ->Agent<UIComponentsReorderAgent>();
+    ->Agent<UIComponentsReorderAgent>()
+    ;
