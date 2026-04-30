@@ -4,7 +4,7 @@
 
 namespace htmlTranslationModule
 {
-class VisualAdaptationAgent : public ScActionAgent
+class VisualAdaptationAgent : public ScActionInitiatedAgent
 {
 public:
     ScResult DoProgram(ScActionInitiatedEvent const & event, ScAction & action) override;

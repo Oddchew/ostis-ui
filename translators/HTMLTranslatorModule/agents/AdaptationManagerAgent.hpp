@@ -10,7 +10,7 @@ namespace htmlTranslationModule
 {
 using StringScAddrMap = std::map<std::string, ScAddr>;
 
-class AdaptationManagerAgent : public ScActionAgent
+class AdaptationManagerAgent : public ScActionInitiatedAgent
 {
 public:
     ScResult DoProgram(ScActionInitiatedEvent const & event, ScAction & action) override;
