@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <sc-memory/sc_module.hpp>
+#include <filesystem>
 
-#include "HTTPServer.hpp"
+#include <sc-builder/scs_loader.hpp>
 
-class HTMLTranslatorModule : public ScModule
-{
-public:
-  std::unique_ptr<htmlTranslationModule::ServerWrapper> m_server;
-};
+#include <sc-memory/sc_agent.hpp>
+
+void loadKB(ScAgentContext & context, ScsLoader & loader, std::filesystem::path const & path);
