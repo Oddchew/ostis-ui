@@ -38,7 +38,7 @@ void HTTPRequestHandler::RetrieveCurrentUIHandler(httplib::Request const & req, 
     adaptationAction.SetArguments(userProfile, currentModel);
     adaptationAction.InitiateAndWait();
 
-    if (!adaptationAction.IsSuccessful())
+    if (!adaptationAction.IsFinishedSuccessfully())
     {
       SC_LOG_WARNING("HTTPRequestHandler: Adaptation failed, using original model.");
     }
