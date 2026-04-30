@@ -1,3 +1,0 @@
-[submodule "thirdparty/cpp-httplib"]
-	path = thirdparty/cpp-httplib
-	url = https://github.com/yhirose/cpp-httplib

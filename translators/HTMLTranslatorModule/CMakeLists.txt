@@ -1,54 +1,23 @@
 set(HTML_TRANSLATOR_SOURCES
-    "HTMLTranslatorModule.cpp"
-    "agents/HTMLTranslatorAgent.cpp"
-    "agents/UIComponentsReorderAgent.cpp"
-    "agents/AdaptationManagerAgent.cpp"
-    "agents/VisualAdaptationAgent.cpp"
-    "html-translator/HTMLTranslator.cpp"
-    "parameter-retriever/ParameterRetriever.cpp"
-    "HTTPServer.cpp"
-    "HTTPRequestHandler.cpp"
+	"HTMLTranslatorModule.cpp"
 )
 
 set(HTML_TRANSLATOR_HEADERS
     "HTMLTranslatorModule.hpp"
-    "keynodes/HTMLTranslatorKeynodes.hpp"
-    "agents/HTMLTranslatorAgent.hpp"
-    "agents/UIComponentsReorderAgent.hpp"
-    "agents/AdaptationManagerAgent.hpp"
-    "agents/VisualAdaptationAgent.hpp"
-    "html-translator/HTMLTranslator.hpp"
-    "parameter-retriever/ParameterRetriever.hpp"
-    "HTTPServer.hpp"
-    "HTTPRequestHandler.hpp"
 )
 
-add_library(ostis-ui-html-translator
-    SHARED ${HTML_TRANSLATOR_SOURCES} ${HTML_TRANSLATOR_HEADERS}
-)
+add_library(ostis-ui-html-translator SHARED ${HTML_TRANSLATOR_SOURCES} ${HTML_TRANSLATOR_HEADERS})
+target_link_libraries(ostis-ui-html-translator PUBLIC sc-memory sc-agents-common)
+target_include_directories(
+	ostis-ui-html-translator
+		PRIVATE ${CMAKE_CURRENT_LIST_DIR}
+		PUBLIC ${SC_MEMORY_SRC}
+		${SC_KPM_SRC}
+		${SC_TOOLS_SRC}
+		PRIVATE ${inja_SOURCE_DIR}/single_include/inja
+	)
+sc_codegen_ex(ostis-ui-html-translator ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/generated)
 
-target_include_directories(ostis-ui-html-translator
-    PUBLIC ${CMAKE_CURRENT_LIST_DIR}
-)
-
-find_package(httplib REQUIRED)
-
-target_link_libraries(ostis-ui-html-translator
-    LINK_PUBLIC sc-machine::sc-memory
-    LINK_PUBLIC sc-machine::sc-agents-common
-    LINK_PRIVATE httplib::httplib
-)
-
-if(${APPLE})
-    find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
-    find_library(CFNETWORK_FRAMEWORK CFNetwork)
-
-    target_link_libraries(ostis-ui-html-translator
-        LINK_PRIVATE ${COREFOUNDATION_FRAMEWORK}
-        LINK_PRIVATE ${CFNETWORK_FRAMEWORK}
-    )
-endif()
-
-if(${SC_BUILD_TESTS})
+if (${OSTIS_UI_BUILD_TESTS})
     add_subdirectory(tests)
-endif()
+endif ()

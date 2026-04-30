@@ -1,21 +1,16 @@
-/*
- * This source file is part of an OSTIS project. For the latest info, see http://ostis.net
- * Distributed under the MIT License
- * (See accompanying file COPYING.MIT or copy at http://opensource.org/licenses/MIT)
- */
-
-#include "agents/HTMLTranslatorAgent.hpp"
-#include "agents/UIComponentsReorderAgent.hpp"
-#include "agents/AdaptationManagerAgent.hpp"
-#include "agents/VisualAdaptationAgent.hpp"
-
 #include "HTMLTranslatorModule.hpp"
 
-using namespace htmlTranslationModule;
+SC_IMPLEMENT_MODULE(HTMLTranslatorModule)
 
-SC_MODULE_REGISTER(HTMLTranslatorModule)
-    ->Agent<HTMLTranslatorAgent>()
-    ->Agent<UIComponentsReorderAgent>()
-    ->Agent<AdaptationManagerAgent>()
-    ->Agent<VisualAdaptationAgent>()
-    ;
+sc_result HTMLTranslatorModule::InitializeImpl()
+{
+  ScMemoryContext ctx(sc_access_lvl_make_min, "HTMLTranslatorModule");
+  // SC_AGENT_REGISTER(SpecifiedStringTemplateAgent);
+  return SC_RESULT_OK;
+}
+
+sc_result HTMLTranslatorModule::ShutdownImpl()
+{
+  // SC_AGENT_UNREGISTER(SpecifiedStringTemplateAgent);
+  return SC_RESULT_OK;
+}
