@@ -1,0 +1,230 @@
+/**
+ * Тестовая KB для UIComponentsReorderAgent и RegenerateHTMLRepresentation.
+ *
+ * Структура UI:
+ *   test_parent_component  (concept_test_container)
+ *     ├── comp_button  (concept_test_button)  → slot1
+ *     └── comp_input   (concept_test_input)   → slot2
+ *
+ * Соглашение о дугах (из реальной KB):
+ *   - child -> parent          : ребёнок указывает на родителя (PermPosArc)
+ *   - class -> instance        : экземпляр принадлежит классу
+ *   - node => link + nrel_XXX  : атрибут через именованную дугу (CommonArc)
+ */
+
+/* ================================================================
+   Типы отношений и классов
+   ================================================================ */
+
+nrel_html_template
+    <- sc_node_non_role_relation;;
+
+nrel_html_parameter_id
+    <- sc_node_non_role_relation;;
+
+nrel_html_representation
+    <- sc_node_non_role_relation;;
+
+nrel_sc_template
+    <- sc_node_non_role_relation;;
+
+nrel_inclusion
+    <- sc_node_non_role_relation;;
+
+concept_ui_object
+    <- sc_node_class;;
+
+
+/* ================================================================
+   Классы компонентов
+   ================================================================ */
+
+concept_test_container
+    <- sc_node_class;;
+
+concept_test_button
+    <- sc_node_class;;
+
+concept_test_input
+    <- sc_node_class;;
+
+/* Привязка к concept_ui_object через nrel_inclusion */
+@incl_container = (concept_ui_object => concept_test_container);;
+@incl_container_mark = (nrel_inclusion -> @incl_container);;
+
+@incl_button = (concept_ui_object => concept_test_button);;
+@incl_button_mark = (nrel_inclusion -> @incl_button);;
+
+@incl_input = (concept_ui_object => concept_test_input);;
+@incl_input_mark = (nrel_inclusion -> @incl_input);;
+
+
+/* ================================================================
+   SC-шаблоны для поиска дочерних компонентов
+   Паттерн: _ui_obj _-> _root_ui_obj  (ребёнок указывает на родителя)
+   ================================================================ */
+
+/* ---- SC-шаблон для concept_test_container ---- */
+sc_tmpl_test_container = [*
+
+    concept_test_container
+        <- sc_node_class;;
+
+    _root_ui_obj
+        <- sc_node_class;;
+
+    _ui_obj
+        <- sc_node_class;;
+
+    _ui_class
+        <- sc_node_class;;
+
+    concept_ui_object
+        <- sc_node_class;;
+
+    nrel_inclusion
+        <- sc_node_non_role_relation;;
+
+    @tpl_c_root = (concept_test_container _-> _root_ui_obj);;
+
+    @tpl_c_child = (_ui_obj _-> _root_ui_obj);;
+
+    @tpl_c_class_member = (_ui_class _-> _ui_obj);;
+
+    @tpl_c_subclass = (concept_ui_object _=> _ui_class);;
+
+    @tpl_c_incl = (nrel_inclusion _-> @tpl_c_subclass);;
+
+*];;
+
+@sc_tmpl_container_arc = (concept_test_container => sc_tmpl_test_container);;
+@sc_tmpl_container_rel = (nrel_sc_template -> @sc_tmpl_container_arc);;
+
+
+/* ---- SC-шаблон для concept_test_button ---- */
+sc_tmpl_test_button = [*
+
+    concept_test_button
+        <- sc_node_class;;
+
+    _root_ui_obj
+        <- sc_node_class;;
+
+    _ui_obj
+        <- sc_node_class;;
+
+    _ui_class
+        <- sc_node_class;;
+
+    concept_ui_object
+        <- sc_node_class;;
+
+    nrel_inclusion
+        <- sc_node_non_role_relation;;
+
+    @tpl_b_root = (concept_test_button _-> _root_ui_obj);;
+
+    @tpl_b_child = (_ui_obj _-> _root_ui_obj);;
+
+    @tpl_b_class_member = (_ui_class _-> _ui_obj);;
+
+    @tpl_b_subclass = (concept_ui_object _=> _ui_class);;
+
+    @tpl_b_incl = (nrel_inclusion _-> @tpl_b_subclass);;
+
+*];;
+
+@sc_tmpl_button_arc = (concept_test_button => sc_tmpl_test_button);;
+@sc_tmpl_button_rel = (nrel_sc_template -> @sc_tmpl_button_arc);;
+
+
+/* ---- SC-шаблон для concept_test_input ---- */
+sc_tmpl_test_input = [*
+
+    concept_test_input
+        <- sc_node_class;;
+
+    _root_ui_obj
+        <- sc_node_class;;
+
+    _ui_obj
+        <- sc_node_class;;
+
+    _ui_class
+        <- sc_node_class;;
+
+    concept_ui_object
+        <- sc_node_class;;
+
+    nrel_inclusion
+        <- sc_node_non_role_relation;;
+
+    @tpl_i_root = (concept_test_input _-> _root_ui_obj);;
+
+    @tpl_i_child = (_ui_obj _-> _root_ui_obj);;
+
+    @tpl_i_class_member = (_ui_class _-> _ui_obj);;
+
+    @tpl_i_subclass = (concept_ui_object _=> _ui_class);;
+
+    @tpl_i_incl = (nrel_inclusion _-> @tpl_i_subclass);;
+
+*];;
+
+@sc_tmpl_input_arc = (concept_test_input => sc_tmpl_test_input);;
+@sc_tmpl_input_rel = (nrel_sc_template -> @sc_tmpl_input_arc);;
+
+
+/* ================================================================
+   Экземпляры компонентов
+   ================================================================ */
+
+/* ---- Кнопка (slot1) ---- */
+
+comp_button
+    <- sc_node_class;;
+
+link_btn_tmpl = [<button id="test-btn">Click me</button>];;
+link_btn_id = [slot1];;
+
+@btn_class_arc = (concept_test_button -> comp_button);;
+
+@btn_tmpl_arc = (comp_button => link_btn_tmpl);;
+@btn_tmpl_rel = (nrel_html_template -> @btn_tmpl_arc);;
+
+@btn_id_arc = (comp_button => link_btn_id);;
+@btn_id_rel = (nrel_html_parameter_id -> @btn_id_arc);;
+
+
+/* ---- Поле ввода (slot2) ---- */
+
+comp_input
+    <- sc_node_class;;
+
+link_inp_tmpl = [<input placeholder="Enter text"/>];;
+link_inp_id = [slot2];;
+
+@inp_class_arc = (concept_test_input -> comp_input);;
+
+@inp_tmpl_arc = (comp_input => link_inp_tmpl);;
+@inp_tmpl_rel = (nrel_html_template -> @inp_tmpl_arc);;
+
+@inp_id_arc = (comp_input => link_inp_id);;
+@inp_id_rel = (nrel_html_parameter_id -> @inp_id_arc);;
+
+
+/* ---- Родительский контейнер ---- */
+
+test_parent_component
+    <- sc_node_class;;
+
+link_parent_tmpl = [<div class="container">{slot1}{slot2}</div>];;
+
+@parent_class_arc = (concept_test_container -> test_parent_component);;
+
+@parent_tmpl_arc = (test_parent_component => link_parent_tmpl);;
+@parent_tmpl_rel = (nrel_html_template -> @parent_tmpl_arc);;
+
+/* Дочерние компоненты указывают на родителя (child -> parent) */
+@btn_to_parent = (comp_button -> test_parent_component);;
+@inp_to_parent = (comp_input -> test_parent_component);;
