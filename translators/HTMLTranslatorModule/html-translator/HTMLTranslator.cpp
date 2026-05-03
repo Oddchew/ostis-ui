@@ -15,6 +15,8 @@
 #include <sc-memory/sc_type.hpp>
 #include <sc-memory/utils/sc_logger.hpp>
 #include <string>
+#include <algorithm>    
+#include <cctype>
 
 using namespace utils;
 
@@ -210,43 +212,30 @@ void HTMLTranslator::InsertParameterValue(
     std::string const & parameterID,
     std::string const & parameterValue)
 {
-  std::string foundParameterID = "";
-  unsigned int start = 0, end = 0, collectMode = 0;
+    std::string placeholder = "{" + parameterID + "}";
+    std::string safeValue = parameterValue;
 
-  for (int i = 0; i < componentTemplateString.size(); i++)
-  {
-    if (componentTemplateString[i] == '}')
-    {
-      end = i;
-      if (foundParameterID == parameterID)
-      {
-        componentTemplateString.replace(start, end - start + 1, parameterValue);
-        break;
-      }
+    // === ЗАЩИТА ОТ ПОЛОМКИ СТИЛЯ ===
+    // Убираем опасные символы и артефакты
+    safeValue.erase(std::remove_if(safeValue.begin(), safeValue.end(), 
+        [](unsigned char c) { 
+            return c == '"' || c == '\'' || c == '\n' || c == '\r' || c == ';'; 
+        }), safeValue.end());
 
-      foundParameterID.clear();
-      start = end = 0;
-      collectMode--;
+    // Убираем "float:" в любом месте
+    size_t floatPos = safeValue.find("float:");
+    if (floatPos != std::string::npos) {
+        safeValue = safeValue.substr(floatPos + 6);
     }
 
-    if (collectMode == 1)
-    {
-      foundParameterID.push_back(componentTemplateString[i]);
-    }
+    SC_LOG_DEBUG("InsertParameterValue: " + parameterID + " = '" + safeValue + "'");
 
-    if (componentTemplateString[i] == '{')
+    size_t pos = 0;
+    while ((pos = componentTemplateString.find(placeholder, pos)) != std::string::npos)
     {
-      start = i;
-      collectMode++;
-      if (collectMode > 1)
-      {
-        SC_LOG_ERROR("HTMLTranslator: given html template is invalid.");
-        throw utils::ScException(
-            utils::ExceptionInvalidParams(
-                "HTMLTranslator: given html template is invalid.", "Multiple nested brackets {...{...}} were given."));
-      }
+        componentTemplateString.replace(pos, placeholder.length(), safeValue);
+        pos += safeValue.length();
     }
-  }
 }
 
 }  // namespace htmlTranslationModule

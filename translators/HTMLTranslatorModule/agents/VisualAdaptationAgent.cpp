@@ -13,10 +13,10 @@
 #include <cctype>
 #include <cmath>
 
+
 namespace htmlTranslationModule
 {
 
-// ===================================================================
 static bool IsScalableProperty(const std::string & id)
 {
     static const std::vector<std::string> prefixes = {
@@ -24,6 +24,7 @@ static bool IsScalableProperty(const std::string & id)
         "line-height", "border-radius"
     };
     for (const auto & p : prefixes)
+
         if (id.find(p) == 0) return true;
     return false;
 }
@@ -44,7 +45,6 @@ static std::string SanitizeCssValue(const std::string & raw)
     return v;
 }
 
-// ===================================================================
 static std::string ScaleCssValue(const std::string & rawValue, double multiplier)
 {
     if (std::abs(multiplier - 1.0) < 0.001)
@@ -76,6 +76,7 @@ static std::string ScaleCssValue(const std::string & rawValue, double multiplier
     std::string unit;
 
     if (!(ss >> num)) return rawValue;
+
     ss >> unit;
 
     double newValue = num * multiplier;
@@ -85,12 +86,12 @@ static std::string ScaleCssValue(const std::string & rawValue, double multiplier
         oss << static_cast<long long>(newValue);
     else
         oss << std::fixed << std::setprecision(2) << newValue;
+
     oss << unit;
 
     return oss.str();
 }
 
-// ===================================================================
 static void InvalidateHTMLCache(ScAgentContext & ctx, ScAddr component)
 {
     ScAddr cached = utils::IteratorUtils::getAnyByOutRelation(
@@ -107,10 +108,10 @@ static void InvalidateHTMLCache(ScAgentContext & ctx, ScAddr component)
 
         if (ctx.CheckConnector(HTMLTranslatorKeynodes::nrel_inclusion, arc, ScType::ConstPermPosArc))
             InvalidateHTMLCache(ctx, parent);
+
     }
 }
 
-// ===================================================================
 ScResult VisualAdaptationAgent::DoProgram(ScActionInitiatedEvent const & event, ScAction & action)
 {
     ScAddr component = utils::IteratorUtils::getAnyByOutRelation(
@@ -190,4 +191,4 @@ ScAddr VisualAdaptationAgent::GetActionClass() const
     return HTMLTranslatorKeynodes::action_apply_visual_adaptation;
 }
 
-}  // namespace htmlTranslationModule
+} // namespace htmlTranslationModule
