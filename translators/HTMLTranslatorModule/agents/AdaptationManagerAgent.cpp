@@ -198,7 +198,7 @@ void AdaptationManagerAgent::ApplyAdaptationToComponent(
     // Запускаем и ждём завершения
     adaptationAction.InitiateAndWait();
 
-    if (!adaptationAction.IsSuccessful())
+    if (adaptationAction.IsFinishedUnsuccessfully ())
     {
         SC_LOG_WARNING("AdaptationManager: Adaptation agent finished unsuccessfully.");
     }
