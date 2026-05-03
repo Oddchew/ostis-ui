@@ -1,0 +1,11 @@
+light_theme
+    => nrel_theme_name: [light];;
+    => nrel_theme_param:
+        color_param => nrel_css_property: [color]; => nrel_css_value: [#000000];;
+        bg_param    => nrel_css_property: [background-color]; => nrel_css_value: [#ffffff];;;
+
+dark_theme
+    => nrel_theme_name: [dark];;
+    => nrel_theme_param:
+        color_param_d => nrel_css_property: [color]; => nrel_css_value: [#e0e0e0];;
+        bg_param_d    => nrel_css_property: [background-color]; => nrel_css_value: [#1e1e1e];;;

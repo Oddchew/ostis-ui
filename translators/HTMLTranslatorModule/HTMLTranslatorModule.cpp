@@ -8,6 +8,7 @@
 #include "agents/UIComponentsReorderAgent.hpp"
 #include "agents/AdaptationManagerAgent.hpp"
 #include "agents/VisualAdaptationAgent.hpp"
+#include "agents/ThemeSwitcherAgent.hpp"
 
 #include "HTMLTranslatorModule.hpp"
 
@@ -18,4 +19,5 @@ SC_MODULE_REGISTER(HTMLTranslatorModule)
     ->Agent<UIComponentsReorderAgent>()
     ->Agent<AdaptationManagerAgent>()
     ->Agent<VisualAdaptationAgent>()
+    ->Agent<ThemeSwitcherAgent>()
     ;
