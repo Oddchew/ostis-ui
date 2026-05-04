@@ -1,0 +1,15 @@
+some_user <- concept_user_profile;;
+
+visual_adaptation <- concept_adaptation;;
+visual_adaptation
+    => nrel_adaptation_agent: action_apply_visual_adaptation;
+    => nrel_adaptation_multiplier: [1.5];;
+
+theme_adaptation <- concept_adaptation;;
+theme_adaptation
+    => nrel_adaptation_agent: action_switch_theme;
+    => nrel_adaptation_multiplier: [dark];;
+
+some_user
+    => nrel_has_adaptation: visual_adaptation;
+    => nrel_has_adaptation: theme_adaptation;;
