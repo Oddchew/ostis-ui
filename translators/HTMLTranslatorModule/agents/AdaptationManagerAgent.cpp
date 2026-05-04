@@ -14,8 +14,13 @@ namespace htmlTranslationModule
 
 ScResult AdaptationManagerAgent::DoProgram(ScActionInitiatedEvent const & event, ScAction & action)
 {
-    // 1. Получаем аргументы: профиль пользователя + корневой компонент
-    auto const [userProfile, rootComponent] = action.GetArguments<2>();
+    ScAddr userProfile = utils::IteratorUtils::getAnyByOutRelation(
+        &m_context, action, ScKeynodes::rrel_1);
+    ScAddr rootComponent = utils::IteratorUtils::getAnyByOutRelation(
+        &m_context, action, ScKeynodes::rrel_2);
+
+    SC_LOG_INFO("AdaptationManager: userProfile hash = " + std::to_string(userProfile.Hash()));
+    SC_LOG_INFO("AdaptationManager: rootComponent hash = " + std::to_string(rootComponent.Hash()));
 
     if (!userProfile.IsValid() || !rootComponent.IsValid())
     {
